@@ -35,7 +35,7 @@ const warn = m => { console.log('  ! ' + m); warnings++; };
 
 // rules.json is the rules engine, not a scraped dataset — it has its own
 // schema and its own checker (check-quotes.js), so it is excluded here.
-const NOT_A_DATASET = ['rules.json'];
+const NOT_A_DATASET = ['rules.json', 'sources.json', 'freshness.json'];
 
 const files = fs.readdirSync(DATA_DIR)
   .filter(f => f.endsWith('.json') && !NOT_A_DATASET.includes(f))

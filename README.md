@@ -56,12 +56,16 @@ Individually:
 
 | Command | Does |
 | --- | --- |
-| `npm run verify` | Citation + integrity checks, rule-quote grounding, and the CSS cascade guard. |
+| `npm run verify` | Citation checks, rule-quote grounding, CSS cascade guard, freshness gate. |
 | `npm run build` | `data/*.json` → `public/data.json`, `public/standalone.html`, `public/artifact.html` |
-| `npm run test` | build + engine tests + UI tests |
-| `npm run check` | Everything: verify + grounding + CSS guard + build + both test suites. **Use this in CI.** |
+| `npm run test` | build + engine + UI + refresh tests |
+| `npm run check` | Everything: all six gates + build + all three test suites. **Use this in CI.** |
 | `npm run serve` | Serves `public/` on `:3000` without rebuilding |
-| `npm run dev` | verify + grounding + CSS guard + build + serve + watch |
+| `npm run refresh` | Re-pull from Elastic docs and report the diff. Writes nothing to `data/`. |
+| `npm run refresh:apply` | Same, but auto-applies row additions. |
+| `npm run refresh:paths` | List repo trees to fix a moved markdown path. |
+| `npm run freshness` | How old is the committed data? |
+| `npm run dev` | all gates + build + serve + watch |
 
 `npm run check` is the full gate. `build.js` also runs its own integrity pass and exits
 non-zero if any section or rule lost its citation, so `npm run build` alone is a usable
@@ -95,18 +99,20 @@ client-side off the bundled data.
 ## Verify the citations
 
 ```bash
-npm run check      # verify + grounding + CSS guard + build + engine tests + UI tests
+npm run check      # all six gates + build + all three test suites
 ```
 
-Five independent gates, each of which fails the build:
+Six independent gates, each of which fails the build:
 
 | Gate | Asserts |
 | --- | --- |
 | `node verify.js` | Every rendered section has a `sourceUrl`; row/column counts match; all URLs well-formed and on an allow-listed host; no non-`http(s)` inline links. |
 | `node check-quotes.js` | **Every rule's `quote` appears verbatim in the scraped dataset it names.** A rule cannot cite text that isn't in the docs we actually read. |
 | `node check-css.js` | Every element toggled via the `hidden` attribute is actually un-paintable — i.e. no author `display` rule can override it. See below. |
+| `node check-freshness.js` | Data age against the thresholds in `sources.json`. Warns past 45 days, fails past 120. |
 | `node test-engine.js` | 94 assertions: version banding, per-checker verdicts against known doc facts, and the invariant that *every* finding carries a `sourceUrl` and evidence. |
 | `node test-ui.js` | 53 assertions driving the real page in jsdom: both modes, all three forms, and that every finding rendered to a user has a doc link. |
+| `node test-refresh.js` | 74 assertions on the refresh pipeline against offline fixtures: markdown parsing, cross-check, and every branch of the additions-auto / changes-review policy. |
 
 Current results:
 
@@ -114,8 +120,10 @@ Current results:
 verify        files 18 | sections 148 | with sourceUrl 148 (100%) | rows 281 | errors 0
 check-quotes  rules 40 | quotes checked 48 | undocumented cases 7 | errors 0
 check-css     toggled elements checked 5 | errors 0
+check-freshness  age within the 45-day window
 test-engine   94 passed, 0 failed
 test-ui       53 passed, 0 failed
+test-refresh  74 passed, 0 failed
 ```
 
 ### Why there's a separate CSS gate
@@ -146,6 +154,103 @@ with a comment pointing here — the paint question is deliberately out of its s
 `test-ui.js` needs jsdom, which is deliberately **not** a saved dependency — the app itself
 has none. Install it only when you want to run UI tests: `npm i --no-save jsdom`. Without
 it the test skips cleanly rather than failing.
+
+## Keeping the data fresh
+
+Elastic's docs change. The project treats staleness as a first-class, visible fact rather
+than something you discover when a verdict turns out to be wrong.
+
+```bash
+npm run refresh              # fetch + diff, report only (nothing written to data/)
+npm run refresh:apply        # fetch + diff, auto-apply row ADDITIONS only
+npm run refresh:paths        # list repo trees to fix a moved markdown path
+npm run freshness            # how old is the committed data?
+```
+
+### How the refresh works
+
+Two sources, cross-checked against each other:
+
+1. **Markdown is the parse source.** Each page's `.md` lives in `elastic/docs-content` or
+   `elastic/opentelemetry` — the "Edit this page" target. Tables parse cleanly with no site
+   boilerplate.
+2. **The rendered page is the cross-check.** Every non-trivial cell parsed from markdown
+   must also appear in the live HTML. Anything present in one but not the other is reported
+   as a conflict and never auto-applied — markdown can be ahead of what's published.
+
+`data/sources.json` maps every dataset to both. **It is the only file to edit when Elastic
+moves a page.** Each entry carries a `verified` field recording how much to trust its
+markdown path:
+
+| `verified` | Meaning |
+| --- | --- |
+| `scrape-2026-09-09` | Path read directly off the page's "Edit this page" link. High confidence. **7 of 26.** |
+| `inferred-from-sibling` | Follows the same directory convention as a sibling whose path *was* observed. Likely right. |
+| `unverified-guess` | The URL slug may not match the repo directory (e.g. `/edot-sdks/node` vs `docs/reference/edot-sdks/nodejs/`). |
+
+`npm run refresh:paths` lists the actual repo trees and prints candidate paths for anything
+that 404s, so fixing a moved page is a copy-paste rather than a hunt.
+
+### What gets applied automatically, and what doesn't
+
+| Change | Policy | Why |
+| --- | --- | --- |
+| Row **added** | auto-applicable | A new row can't invalidate an existing citation; it only extends a table. |
+| Cell **changed** | **review** | A changed cell can silently flip a verdict the checkers report. |
+| Row **removed** | **review** | Could mean Elastic dropped support, or the parse broke. Indistinguishable. |
+| Columns changed | **review** | Reshapes every row; row-diffing against different columns is meaningless. |
+| New table appears | **review** | Needs a heading, a source anchor and a decision about where it belongs. |
+| Ambiguous rows | **review** | If rows share an identifying key, the diff escalates rather than guess. |
+
+`diff-refresh.js` exits non-zero whenever review is needed, so CI blocks on it.
+
+### The bit that matters most: rule quotes at risk
+
+Every rule in `data/rules.json` quotes a doc sentence verbatim. If a refresh changes a
+sentence a rule quotes, that rule silently loses its grounding. `diff-refresh.js` predicts
+this **before** anything is applied and names the affected rules:
+
+```
+RULE QUOTES AT RISK (1)
+  path-apm-server-otel  (dataset: edot-sdks-compat)
+    quote  : Telemetry might ingest but mapping, enrichment, and troubleshooting are not guaranteed.
+    changed: This path is now fully supported.
+```
+
+When you see that, the fix is to update the rule's `quote` **and** re-check whether its
+`verdict` is still what the doc says — a reworded sentence often means the support level
+itself changed. Then `npm run check`.
+
+### Staleness is visible in three places
+
+- **The UI banner** — grey inside the window, amber past `maxAgeDays` (45), red past
+  `maxAgeDaysHardFail` (120), with wording that tells the reader to follow the source link
+  rather than trust the page. Shown in both modes.
+- **`check-freshness.js`** — a build gate. Warns past the soft limit, fails past the hard
+  one. `--strict` fails at the soft limit.
+- **A weekly CI job** (`.github/workflows/refresh-drift.yml`) — runs the refresh Mondays
+  07:00 UTC, uploads the diff, and opens/updates a single `data-drift` issue. Report-only;
+  it never pushes to `main`.
+
+### Verification caveat — read this before the first real run
+
+**The network paths in `refresh.js` have never been executed.** The environment this was
+built in could not reach `elastic.co` or `raw.githubusercontent.com`, so I could not run a
+live fetch end to end. What *is* tested, by `test-refresh.js` against recorded fixtures
+(74 assertions):
+
+- markdown table parsing, including both anchor syntaxes, code fences, escaped pipes,
+  inline code, short rows and malformed separators
+- markdown→text and HTML→text normalisation
+- the cross-check, both when cells match and when they don't
+- every branch of the diff policy above, including `--apply-additions` actually writing
+- the rule-quote-at-risk prediction
+
+Untested in anger: the actual HTTP calls, and whether the 19 `inferred-from-sibling` /
+`unverified-guess` markdown paths resolve. `refresh.js` is built to fail loudly and write
+nothing when it can't fetch — verified: with no network it exits 2 and leaves `data/`
+byte-identical. **Treat the first live run as needing a human eye**, and start with
+`npm run refresh:paths` to confirm the paths before trusting a diff.
 
 ## How the checkers avoid guessing
 
@@ -259,10 +364,16 @@ apm-edot-compatibility-matrix/
 ├── verify.js              citation & integrity checks on the datasets
 ├── check-quotes.js        grounds every rule quote against the scraped data
 ├── check-css.js           guards the hidden-attribute cascade (see above)
+├── check-freshness.js     data-age build gate
+├── refresh.js             cross-checked re-pull from Elastic docs
+├── diff-refresh.js        staged-vs-committed diff + apply policy
+├── test-refresh.js        74 tests for the refresh pipeline (offline fixtures)
 ├── test-engine.js         94 unit tests for the evaluator
 ├── test-ui.js             53 tests driving the real page in jsdom
 ├── data/
 │   ├── rules.json         the cited rules engine  (40 rules, 7 undocumented cases)
+│   ├── sources.json       page -> markdown source manifest (edit when a page moves)
+│   ├── freshness.json     when the data was last refreshed, and how
 │   └── *.json             18 scraped datasets, one per doc page (or per language)
 └── public/
     ├── index.html         hand-edited

@@ -9,3 +9,9 @@ npm-debug.log*
 
 # OS
 .DS_Store
+
+# Refresh working dirs (staging output of refresh.js)
+.refresh-staging/
+.refresh-test-tmp/
+drift-report.txt
+drift-report.json

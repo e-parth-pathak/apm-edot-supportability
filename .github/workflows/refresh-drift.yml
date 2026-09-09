@@ -1,0 +1,129 @@
+name: Weekly data drift check
+
+# Re-pulls the Elastic docs and reports whether the committed data still
+# matches. Report-only: it never pushes changes to main. If drift is found it
+# opens (or updates) a single tracking issue with the diff.
+on:
+  schedule:
+    - cron: '0 7 * * 1'   # Mondays 07:00 UTC
+  workflow_dispatch:
+    inputs:
+      only:
+        description: 'Comma-separated dataset ids (blank = all)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Freshness gate (strict — flags data past maxAgeDays)
+        id: freshness
+        continue-on-error: true
+        run: node check-freshness.js --strict
+
+      - name: Resolve markdown paths (diagnostic, never fails the job)
+        continue-on-error: true
+        run: node refresh.js --resolve-paths
+
+      - name: Refresh from Elastic docs (markdown + live HTML, cross-checked)
+        id: refresh
+        continue-on-error: true
+        run: |
+          if [ -n "${{ github.event.inputs.only }}" ]; then
+            node refresh.js --only "${{ github.event.inputs.only }}"
+          else
+            node refresh.js
+          fi
+
+      - name: Diff against committed data
+        id: diff
+        continue-on-error: true
+        run: |
+          node diff-refresh.js | tee drift-report.txt
+          echo "exit=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Machine-readable diff
+        continue-on-error: true
+        run: node diff-refresh.js --json > drift-report.json || true
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-reports
+          path: |
+            drift-report.txt
+            drift-report.json
+            .refresh-staging/report.json
+          if-no-files-found: warn
+
+      - name: Open or update the drift issue
+        if: steps.diff.outcome == 'failure' || steps.refresh.outcome == 'failure' || steps.freshness.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let body = '';
+            try { body = fs.readFileSync('drift-report.txt', 'utf8'); } catch (e) {}
+            if (body.length > 55000) body = body.slice(0, 55000) + '\n… truncated, see the workflow artifact.';
+
+            const title = 'Data drift detected in Elastic compatibility docs';
+            const marker = '<!-- drift-bot -->';
+            const intro = [
+              marker,
+              '',
+              'The weekly refresh found that the committed data no longer matches the Elastic docs,',
+              'or the refresh itself hit a problem.',
+              '',
+              '**Nothing was auto-applied.** Row *additions* can be applied with',
+              '`node diff-refresh.js --apply-additions`; changed and removed rows always need a human.',
+              '',
+              'Watch for a **RULE QUOTES AT RISK** section below — those are the changes that would',
+              'break `check-quotes.js` and silently alter a checker verdict.',
+              '',
+              '<details><summary>Drift report</summary>',
+              '',
+              '```',
+              body || '(no report produced — see the workflow logs)',
+              '```',
+              '',
+              '</details>',
+              '',
+              `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            ].join('\n');
+
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'data-drift',
+            });
+            const mine = existing.data.find(i => (i.body || '').includes(marker));
+
+            if (mine) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: mine.number,
+                body: `Drift still present as of ${new Date().toISOString().slice(0, 10)}.\n\n${intro}`,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body: intro, labels: ['data-drift'],
+              });
+            }
+
+      - name: Fail the run if review is needed
+        if: steps.diff.outcome == 'failure' || steps.refresh.outcome == 'failure'
+        run: |
+          echo "Drift or fetch problems require review — see the issue and artifacts."
+          exit 1

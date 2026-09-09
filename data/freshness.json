@@ -1,0 +1,11 @@
+{
+  "note": "Provenance for the committed dataset. refresh.js updates this after a successful cross-checked fetch; check-freshness.js reads it as a build gate; the UI reads it to show the staleness banner. Edit by hand only if you refreshed the data by hand.",
+  "lastRefreshed": "2026-09-09",
+  "lastRefreshedBy": "initial-scrape",
+  "method": "manual transcription from rendered pages (pre-refresh.js)",
+  "sourceCommits": {},
+  "crossChecked": false,
+  "crossCheckNote": "The initial dataset was transcribed by reading each rendered page directly. It was not produced by refresh.js, so there are no source commit SHAs for it. The first run of refresh.js will populate sourceCommits and set crossChecked.",
+  "pagesCovered": 26,
+  "datasetsCovered": 18
+}

@@ -101,8 +101,34 @@ if (fs.existsSync(rulesPath)) {
   problems.push('MISSING FILE: rules.json — the checkers will be disabled');
 }
 
+// Freshness provenance travels with the data so the UI can show a staleness
+// banner and the single-file builds stay self-describing.
+let freshness = null;
+const freshPath = path.join(DATA_DIR, 'freshness.json');
+if (fs.existsSync(freshPath)) {
+  try {
+    freshness = JSON.parse(fs.readFileSync(freshPath, 'utf8'));
+    if (!freshness.lastRefreshed) problems.push('freshness.json has no lastRefreshed date');
+  } catch (e) {
+    problems.push(`BAD JSON in freshness.json: ${e.message}`);
+  }
+} else {
+  problems.push('MISSING FILE: freshness.json — the UI cannot report data age');
+}
+
+let sourcesManifest = null;
+const srcPath = path.join(DATA_DIR, 'sources.json');
+if (fs.existsSync(srcPath)) {
+  try { sourcesManifest = JSON.parse(fs.readFileSync(srcPath, 'utf8')); }
+  catch (e) { problems.push(`BAD JSON in sources.json: ${e.message}`); }
+}
+
 const bundle = {
   generatedAt: new Date().toISOString(),
+  freshness,
+  thresholds: sourcesManifest
+    ? { maxAgeDays: sourcesManifest.maxAgeDays, maxAgeDaysHardFail: sourcesManifest.maxAgeDaysHardFail }
+    : null,
   note: 'Every value in this bundle is a verbatim transcription of the linked Elastic documentation page. Each section carries the exact source URL (with anchor) it came from.',
   stats: stats(datasets),
   sources: allSources,

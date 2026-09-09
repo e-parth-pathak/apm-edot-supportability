@@ -454,3 +454,15 @@ label.inline { display: flex; flex-direction: row; align-items: center; gap: 8px
    hidden attribute alone left the browse view on screen. These win.
    --------------------------------------------------------------------------- */
 [hidden] { display: none !important; }
+
+/* ------------------------------------------------------------ freshness bar */
+.freshbar {
+  max-width: 1600px; margin: 0 auto 10px; padding: 8px 22px;
+  font-size: 12.5px; line-height: 1.5;
+  border-top: 1px solid var(--border);
+}
+.freshbar.level-ok   { color: var(--text-dim); }
+.freshbar.level-warn { background: var(--warn-bg); color: var(--warn-fg); border-color: var(--warn-bd); }
+.freshbar.level-bad  { background: var(--bad-bg);  color: var(--bad-fg);  border-color: var(--bad-bd); }
+.freshbar code { font-size: .9em; }
+.fresh-note { opacity: .8; font-style: italic; }

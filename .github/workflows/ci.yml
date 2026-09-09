@@ -38,6 +38,12 @@ jobs:
       - name: CSS cascade guard for hidden views
         run: node check-css.js
 
+      # Warns past maxAgeDays, fails past maxAgeDaysHardFail. Not --strict here:
+      # ageing data shouldn't block an unrelated PR. The weekly drift job is
+      # strict and opens an issue instead.
+      - name: Data freshness gate
+        run: node check-freshness.js
+
       - name: Build
         run: node build.js
 
@@ -46,6 +52,9 @@ jobs:
 
       - name: UI tests (jsdom)
         run: node test-ui.js
+
+      - name: Refresh pipeline tests (parser + diff policy, offline fixtures)
+        run: node test-refresh.js
 
       - name: Upload built single-file bundle
         if: matrix.node == '22'

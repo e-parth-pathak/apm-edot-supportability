@@ -411,10 +411,62 @@
     show(saved === 'check' ? 'check' : 'browse');
   }
 
+  /* ------------------------------------------------------ freshness banner */
+  /**
+   * Shows how old the data is, and warns past the thresholds in
+   * data/sources.json. Always visible in both modes — a stale-data warning is
+   * exactly as relevant to a checker verdict as it is to the browse tables.
+   */
+  function renderFreshness(data) {
+    var bar = document.getElementById('freshbar');
+    if (!bar) return;
+    var f = data.freshness;
+    if (!f || !f.lastRefreshed) {
+      bar.hidden = false;
+      bar.className = 'freshbar level-warn';
+      bar.innerHTML = '<strong>Data age unknown</strong> — <code>data/freshness.json</code> is ' +
+        'missing or has no date, so this page cannot tell you how current it is.';
+      return;
+    }
+
+    var t = data.thresholds || {};
+    var soft = t.maxAgeDays || 45;
+    var hard = t.maxAgeDaysHardFail || 120;
+
+    var then = new Date(f.lastRefreshed + 'T00:00:00Z');
+    var age = Math.floor((Date.now() - then.getTime()) / 86400000);
+
+    var level = age > hard ? 'bad' : (age > soft ? 'warn' : 'ok');
+    var msg;
+    if (level === 'bad') {
+      msg = '<strong>Data is ' + age + ' days old</strong> — past the ' + hard +
+        '-day limit. Treat every verdict as unverified until refreshed; ' +
+        'check the linked Elastic doc directly.';
+    } else if (level === 'warn') {
+      msg = '<strong>Data is ' + age + ' days old</strong> — past the ' + soft +
+        '-day freshness window. Elastic may have published changes since. ' +
+        'Follow the source link on anything you rely on.';
+    } else {
+      msg = 'Data refreshed <strong>' + esc(f.lastRefreshed) + '</strong> (' + age +
+        ' day' + (age === 1 ? '' : 's') + ' ago) from ' +
+        esc(String(f.pagesCovered || '?')) + ' Elastic doc pages.';
+    }
+
+    if (!f.crossChecked) {
+      msg += ' <span class="fresh-note">Not produced by a cross-checked refresh — ' +
+        'transcribed by hand.</span>';
+    }
+
+    bar.hidden = false;
+    bar.className = 'freshbar level-' + level;
+    bar.innerHTML = msg;
+  }
+
   function boot(data) {
     DATA = data;
     initTheme();
     initControls();
+    renderFreshness(data);
     renderFooter();
     render();
     initModes(data);
