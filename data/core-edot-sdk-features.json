@@ -1,0 +1,74 @@
+{
+  "id": "edot-sdk-features",
+  "title": "EDOT SDKs — feature overview by language",
+  "group": "EDOT SDKs",
+  "sources": [
+    { "title": "EDOT SDKs", "url": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks" }
+  ],
+  "intro": "The EDOT SDKs are production-ready, customized distributions of [OpenTelemetry](https://opentelemetry.io/) language SDKs, specifically optimized for seamless integration with Elastic Observability. While maintaining full compatibility with the OpenTelemetry specification, EDOT SDKs provide improvements and bug fixes from Elastic before they become available in contrib OpenTelemetry repositories.",
+  "introSourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks",
+  "legend": [
+    { "symbol": "✅", "meaning": "Generally available" },
+    { "symbol": "𝐓", "meaning": "In technical preview" },
+    { "symbol": "➖", "meaning": "Not applicable" },
+    { "symbol": "❌", "meaning": "Not available" }
+  ],
+  "legendSourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks#feature-overview",
+  "sections": [
+    {
+      "heading": "Feature overview",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks#feature-overview",
+      "type": "table",
+      "columns": ["Feature", ".NET", "Java", "Node.js", "PHP", "Python", "Android", "iOS", "Browser"],
+      "rows": [
+        ["**[Distributed tracing](https://opentelemetry.io/docs/concepts/signals/traces/)**", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "𝐓 0.1.0+"],
+        ["[Service map](https://www.elastic.co/docs/solutions/observability/apm/service-map)", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ v1.0+", "𝐓 0.1.0+"],
+        ["[Zero-code instrumentation](https://opentelemetry.io/docs/concepts/instrumentation/zero-code/)", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "❌", "❌", "❌"],
+        ["[Head-based sampling](https://opentelemetry.io/docs/concepts/sampling/#head-sampling)", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.1+", "✅ v1.0+", "𝐓 0.1.0+"],
+        ["[Baggage](https://opentelemetry.io/docs/concepts/signals/baggage/)", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "❌", "✅ v1.0+", "𝐓 0.1.0+"],
+        ["Inferred spans", "❌", "✅ 1.0+", "❌", "𝐓 1.0+", "❌", "❌", "❌", "❌"],
+        ["**[Logs collection](https://opentelemetry.io/docs/specs/otel/logs/#opentelemetry-solution)**", "✅ 1.0+", "✅ 1.0+", "𝐓 1.0+", "✅ 1.0+", "𝐓 1.0+", "✅ 1.0+", "✅ v1.0+", "𝐓 0.1.0+"],
+        ["[Logs correlation](https://opentelemetry.io/docs/specs/otel/logs/#log-correlation)", "✅ 1.0+", "✅ 1.0+", "𝐓 1.0+", "✅ 1.0+", "𝐓 1.0+", "✅ 1.0+", "✅ v1.0+", "𝐓 0.1.0+"],
+        ["**[Metrics collection](https://opentelemetry.io/docs/concepts/signals/metrics/)**", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "𝐓 v0.7+", "𝐓 0.1.0+"],
+        ["Custom metrics", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "𝐓 v0.7+", "𝐓 0.1.0+"],
+        ["Agent health monitoring", "❌", "❌", "❌", "❌", "❌", "❌", "❌", "❌"],
+        ["[Runtime metrics](https://opentelemetry.io/docs/specs/semconv/runtime/)", "✅ 1.0+¹", "✅ 1.0+¹", "𝐓 1.0+¹", "❌", "❌", "❌", "❌", "➖"],
+        ["**Capturing errors / exceptions**", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ 1.0+", "✅ v1.0+", "𝐓 0.1.0+"],
+        ["Crash reporting", "➖", "➖", "➖", "➖", "➖", "✅ 1.6.0+", "✅ v1.0+", "➖"],
+        ["**Central configuration**", "𝐓 1.4.0+", "𝐓 1.5.0+", "𝐓 1.2.0+", "𝐓 1.1.0+", "𝐓 1.4.0+", "𝐓 1.2.0+", "𝐓 1.4.0+", "❌"],
+        ["**Profiling integration**", "❌", "𝐓 1.0+", "❌", "❌", "❌", "❌", "❌", "❌"],
+        ["**[TLS for OTLP endpoint](https://opentelemetry.io/docs/specs/otel/protocol/exporter/#endpoint-urls-for-otlphttp)**", "✅ 1.0+", "✅ 1.0+", "✅ 1.6+", "✅ 1.2+", "✅ 1.0+", "✅ 1.0+²", "✅ v1.0+²", "𝐓 0.1.0+"],
+        ["TLS for OpAMP endpoint", "𝐓 1.4.0+³", "❌", "✅ 1.7.0+", "✅ 1.2.0+", "✅ 1.10.0+", "✅ 1.2.0+²", "✅ v1.4.0+²", "❌"]
+      ],
+      "notes": [
+        "This table provides an overview of the features available in the EDOT SDKs across different programming languages.",
+        "¹ Runtime metrics can be ingested but visualization in the APM Service > Metrics tab is currently limited.",
+        "² CA-signed certificates only",
+        "³ Custom certificate verification and mTLS are not available yet."
+      ]
+    },
+    {
+      "heading": "Supported languages",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks#supported-languages",
+      "type": "list",
+      "items": [
+        "[.NET](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/dotnet)",
+        "[Java](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/java)",
+        "[Node](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node)",
+        "[PHP](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php)",
+        "[Python](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/python)",
+        "[Android](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android)",
+        "[iOS](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios)",
+        "[Browser](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/browser)"
+      ],
+      "notes": ["EDOT SDKs are available for the following programming languages and platforms:"]
+    },
+    {
+      "heading": "Support for EDOT SDKs",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks#support-for-edot-sdks",
+      "type": "prose",
+      "text": "Elastic provides technical support for EDOT Language SDKs according to Elastic's [Support Policy](https://www.elastic.co/support_policy). EDOT SDKs are meant to be used in combination with the [Elastic Agent](https://www.elastic.co/docs/reference/edot-collector) or the [Elastic Cloud Managed OTLP Endpoint](https://www.elastic.co/docs/reference/opentelemetry/managed-inputs/managed-otlp-endpoint) to ingest data into Elastic solutions from the EDOT SDKs. Other ingestion paths are not officially supported by Elastic.\n\nUsing EDOT SDKs directly with APM Server's OpenTelemetry intake endpoint is not supported. While some data might ingest, Elastic doesn't guarantee: correctness of attributes; alignment with Elastic OpenTelemetry processing pipelines; enrichment (service metadata, environment, runtime info, and so on); troubleshooting coverage.\n\nIf you require a supported setup, route SDK telemetry through Elastic Agent or use Managed OTel intake.\n\nWarning: Avoid using EDOT SDKs alongside any other APM agent, including Elastic APM agents. Running multiple agents in the same application process might lead to conflicting instrumentation, duplicate telemetry, or other unexpected behavior.",
+      "notes": ["License: EDOT SDKs are licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)."]
+    }
+  ]
+}

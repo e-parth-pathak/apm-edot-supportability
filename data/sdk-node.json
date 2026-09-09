@@ -1,0 +1,192 @@
+{
+  "id": "node",
+  "language": "Node.js",
+  "sources": [
+    {
+      "title": "EDOT Node.js",
+      "url": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node"
+    },
+    {
+      "title": "Supported technologies - EDOT Node.js",
+      "url": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node/supported-technologies"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "Features",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node#features",
+      "type": "list",
+      "items": [
+        "A single package that includes several OpenTelemetry packages as dependencies, so you only need to install and update a single package (for most use cases). This is similar to OpenTelemetry's `@opentelemetry/auto-instrumentations-node` package.",
+        "Improvements and bug fixes contributed by the Elastic team before the changes are available in OpenTelemetry repositories.",
+        "Optional features that can enhance OpenTelemetry data that is being sent to Elastic.",
+        "Elastic-specific processors that ensure optimal compatibility when exporting OpenTelemetry signal data to an Elastic backend like an Elastic Observability deployment.",
+        "Pre-configured collection of tracing and metrics signals, applying some opinionated defaults, such as which sources are collected by default. Additional metrics are collected by default: `process.cpu.*` and `process.memory.*` metrics from the [host-metrics instrumentation package](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-host-metrics/).",
+        "Compatibility with APM Agent Central Configuration to modify the settings of the EDOT Node.js agent without having to restart the application."
+      ],
+      "notes": [
+        "In addition to all the features of OpenTelemetry Node.js, with EDOT Node.js you have access to the following:",
+        "Use EDOT Node.js with your Node.js application to automatically capture distributed tracing data, performance metrics, and logs. EDOT Node.js automatically instruments [popular modules](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node/supported-technologies#instrumentations) used by your service."
+      ]
+    },
+    {
+      "heading": "Technologies supported by the EDOT Node.js SDK",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node/supported-technologies",
+      "type": "prose",
+      "text": "The EDOT Node.js agent is a [distribution](https://opentelemetry.io/docs/concepts/distributions/) of OpenTelemetry Node.js. It inherits all the [supported](https://www.elastic.co/docs/reference/opentelemetry/compatibility/nomenclature) technologies of the OpenTelemetry Node.js.",
+      "notes": [
+        "Note",
+        "**Understanding auto-instrumentation scope**",
+        "Auto-instrumentation automatically captures telemetry for the frameworks and libraries listed on this page. However, it cannot instrument:",
+        "Custom or proprietary frameworks and libraries",
+        "Closed-source components without instrumentation support",
+        "Application-specific business logic",
+        "If your application uses technologies not covered by auto-instrumentation, you have two options:",
+        "1. **Native OpenTelemetry support** — Some frameworks and libraries include built-in OpenTelemetry instrumentation provided by the vendor.",
+        "2. **Manual instrumentation** — Use the [OpenTelemetry API](https://opentelemetry.io/docs/languages/js/instrumentation/) to add custom spans, metrics, and logs for unsupported components."
+      ]
+    },
+    {
+      "heading": "EDOT Collector and Elastic Stack versions",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node/supported-technologies#edot-collector-and-elastic-stack-versions",
+      "type": "prose",
+      "text": "The Elastic Distribution of OpenTelemetry Node.js (EDOT Node.js) sends data through the OpenTelemetry protocol (OTLP). While OTLP ingest works with later 8.16+ versions of the EDOT Collector, for full support use either [EDOT Collector](https://www.elastic.co/docs/reference/edot-collector) versions 9.x or [Elastic Cloud Serverless](https://www.elastic.co/docs/deploy-manage/deploy/elastic-cloud/serverless) for OTLP ingest.",
+      "notes": [
+        "Note",
+        "Ingesting data from EDOT SDKs through EDOT Collector 9.x into Elastic Stack versions 8.18+ is supported.",
+        "Refer to [EDOT SDKs compatibility](https://www.elastic.co/docs/reference/opentelemetry/compatibility/sdks) for support details."
+      ]
+    },
+    {
+      "heading": "Node.js versions",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node/supported-technologies#node.js-versions",
+      "type": "prose",
+      "text": "EDOT Node.js supports Node.js 18.19.0, 20.6.0, or later. This follows from the [OpenTelemetry JS supported runtimes](https://github.com/open-telemetry/opentelemetry-js#supported-runtimes).",
+      "notes": []
+    },
+    {
+      "heading": "TypeScript versions",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node/supported-technologies#typescript-versions",
+      "type": "list",
+      "items": [
+        "TypeScript 5.0.4 or later",
+        "Using `\"module\": \"node16\"` or \"nodenext\" in \"tsconfig.json\" to get support for handling the \"exports\" entry in package.json. This is so the `@elastic/opentelemetry-node/sdk` entry-point can be used."
+      ],
+      "notes": [
+        "Usage of `@elastic/opentelemetry-node` in TypeScript code requires:"
+      ]
+    },
+    {
+      "heading": "Instrumentations",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node/supported-technologies#instrumentations",
+      "type": "table",
+      "columns": ["Name", "Packages instrumented", "Notes"],
+      "rows": [
+        ["`@opentelemetry/instrumentation-amqplib`", "`amqplib` version range `>=0.5.5 <1`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-amqplib#readme)"],
+        ["`@opentelemetry/instrumentation-aws-sdk`", "`aws-sdk` v2 and `@aws-sdk/client-*` v3", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-aws-sdk#readme)"],
+        ["`@opentelemetry/instrumentation-bunyan`", "`bunyan` version range `^1.0.0`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-bunyan#readme)"],
+        ["`@opentelemetry/instrumentation-cassandra-driver`", "`cassandra-driver` version range `>=4.4.0 <5`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-cassandra-driver#readme)"],
+        ["`@opentelemetry/instrumentation-connect`", "`connect` version range `^3.0.0`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-connect#readme)"],
+        ["`@opentelemetry/instrumentation-cucumber`", "`@cucumber/cucumber` version range `>=8.0.0 <11`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-cucumber#readme)"],
+        ["`@opentelemetry/instrumentation-dataloader`", "`dataloader` version range `>=2.0.0 <3`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-dataloader#readme)"],
+        ["`@opentelemetry/instrumentation-dns`", "`dns` module for supported Node.js versions", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-dns#readme)"],
+        ["`@opentelemetry/instrumentation-express`", "`express` version range `^4.0.0`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-express#readme)"],
+        ["`@opentelemetry/instrumentation-fastify`", "`fastify` version range `>=3 <5`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-fastify#readme), [disabled by default](#disabled-instrumentations)"],
+        ["`@opentelemetry/instrumentation-fs`", "`fs` module for supported Node.js versions", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-fs#readme), [disabled by default](#disabled-instrumentations)"],
+        ["`@opentelemetry/instrumentation-generic-pool`", "`generic-pool` version range `2 - 2.3, ^2.4, >=3`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-generic-pool#readme)"],
+        ["`@opentelemetry/instrumentation-graphql`", "`graphql` version range `>=14.0.0 <17`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-graphql#readme)"],
+        ["`@opentelemetry/instrumentation-grpc`", "`@grpc/grpc-js` version range `^1.0.0`", "[README](https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation-grpc#readme)"],
+        ["`@opentelemetry/instrumentation-hapi`", "`@hapi/hapi >=17.0.0 <21`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-hapi#readme)"],
+        ["`@opentelemetry/instrumentation-http`", "`http` module for supported Node.js versions", "[README](https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation-http#readme)"],
+        ["`@opentelemetry/instrumentation-ioredis`", "`ioredis` version range `>=2 <6`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-ioredis#readme)"],
+        ["`@opentelemetry/instrumentation-kafkajs`", "`kafkajs` version range `>=0.1.0 <3`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-kafkajs#readme)"],
+        ["`@opentelemetry/instrumentation-knex`", "`knex` version range `>=0.10.0`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-knex#readme)"],
+        ["`@opentelemetry/instrumentation-koa`", "`koa` version range `^2.0.0`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-koa#readme)"],
+        ["`@opentelemetry/instrumentation-lru-memoizer`", "`lru-memoizer` version range `>=1.3 <3`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-lru-memoizer#readme)"],
+        ["`@opentelemetry/instrumentation-memcached`", "`memcached` version range `>=2.2`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-memcached#readme)"],
+        ["`@opentelemetry/instrumentation-mongodb`", "`mongodb` version range `>=3.3 <7`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-mongodb#readme)"],
+        ["`@opentelemetry/instrumentation-mongoose`", "`mongoose` version range `>=5.9.7 <9`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-mongoose#readme)"],
+        ["`@opentelemetry/instrumentation-mysql`", "`mysql` version range `>=2.0.0 <3`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/packages/instrumentation-mysql#readme)"],
+        ["`@opentelemetry/instrumentation-mysql2`", "`mysql2` version range `>=1.4.2 <4`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/packages/instrumentation-mysql2#readme)"],
+        ["`@opentelemetry/instrumentation-nestjs-core`", "`@nestjs/core` version range `>=4.0.0`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-nestjs-core#readme)"],
+        ["`@opentelemetry/instrumentation-net`", "`net` module for supported Node.js versions", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-net#readme)"],
+        ["`@opentelemetry/instrumentation-openai`", "`openai` version range `>=4.19.0 <6`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-openai#readme)"],
+        ["`@opentelemetry/instrumentation-oracledb`", "`oracledb` version range `>=6.7.0 <7`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-oracledb#readme)"],
+        ["`@opentelemetry/instrumentation-pg`", "`pg` version range `>=8 <9`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-pg#readme)"],
+        ["`@opentelemetry/instrumentation-pino`", "`pino` version range `>=5.14.0 <10`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-pino#readme)"],
+        ["`@opentelemetry/instrumentation-redis`", "`redis` version range `>=2.6.0 <5`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-redis#readme)"],
+        ["`@opentelemetry/instrumentation-restify`", "`restify` version range `>=4.0.0 <12`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-restify#readme)"],
+        ["`@opentelemetry/instrumentation-router`", "`router` version range `1`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-router#readme)"],
+        ["`@opentelemetry/instrumentation-runtime-node`", "N/A (provides Node.js runtime metrics)", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-runtime-node#readme)"],
+        ["`@opentelemetry/instrumentation-socket.io`", "`socket.io` version range `2, >=3 <5`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-socket.io#readme)"],
+        ["`@opentelemetry/instrumentation-tedious`", "`tedious` version range `>=1.11.0 <=15`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-tedious#readme)"],
+        ["`@opentelemetry/instrumentation-undici`", "`undici` version range `>=5.12.0`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-undici#readme)"],
+        ["`@opentelemetry/instrumentation-winston`", "`winston` version range `>1 <4`", "[README](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-winston#readme)"]
+      ],
+      "notes": [
+        "The following instrumentations are included in EDOT Node.js. All are turned on by default, except those noted *disabled by default*.",
+        "The 🔹 symbol marks instrumentations that differ between EDOT Node.js and OTel JS, or that only exist in EDOT Node.js."
+      ]
+    },
+    {
+      "heading": "LLM instrumentations",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node/supported-technologies#llm-instrumentations",
+      "type": "table",
+      "columns": ["SDK", "Instrumentation", "Traces", "Metrics", "Logs", "Notes"],
+      "rows": [
+        ["OpenAI", "[@opentelemetry/instrumentation-openai](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/packages/instrumentation-openai#readme)", "✅", "✅", "✅", "(1)"]
+      ],
+      "notes": [
+        "EDOT Node.js can instrument the following Large Language Model (LLM) libraries with instrumentations implementing the [OpenTelemetry GenAI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/):",
+        "1. Support for [chat](https://platform.openai.com/docs/api-reference/chat) and [embeddings](https://platform.openai.com/docs/api-reference/embeddings) API endpoints."
+      ]
+    },
+    {
+      "heading": "Deactivated instrumentations",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node/supported-technologies#disabled-instrumentations",
+      "type": "list",
+      "items": [
+        "`@opentelemetry/instrumentation-fs` (Deactivated upstream in [open-telemetry/opentelemetry-js-contrib#2467](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2467).)",
+        "`@opentelemetry/instrumentation-fastify` (Deprecated upstream and slated for removal. Refer to [open-telemetry/opentelemetry-js-contrib#2652](https://github.com/open-telemetry/opentelemetry-js-contrib/pull/2652))"
+      ],
+      "notes": [
+        "The following instrumentations are included in EDOT Node.js, but deactivated by default:",
+        "To turn on these instrumentations, use the [`OTEL_NODE_ENABLED_INSTRUMENTATIONS` environment variable](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node/configuration#otel_node_disabledenabled_instrumentations-details). Make sure you list all the instrumentations you need for your service since only the ones in that list will be activated. For example:",
+        "EDOT Node.js uses the [`@opentelemetry/auto-instrumentations-node` package set of instrumentations](https://github.com/open-telemetry/opentelemetry-js-contrib/blob/main/metapackages/auto-instrumentations-node/README.md#supported-instrumentations) as a guide for instrumentations to include, exclude, or turn off by default. This is to maximize compatibility between usage of EDOT Node.js and the OpenTelemetry JS SDK."
+      ]
+    },
+    {
+      "heading": "Native instrumentations",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node/supported-technologies#native-instrumentations",
+      "type": "table",
+      "columns": ["Packages instrumented", "Reference"],
+      "rows": [
+        ["`@elastic/elasticsearch` version range `>=8.15.0`", "Elasticsearch JavaScript Client docs"]
+      ],
+      "notes": [
+        "Native instrumentation refers to OpenTelemetry instrumentation that is built into a library. When a library includes native OTel instrumentation, it provides telemetry data to providers registered by a running OTel SDK. Native instrumentations of note are listed in the following table. To benefit from these instrumentations you only need to use the library and start the EDOT Node.js SDK:"
+      ]
+    },
+    {
+      "heading": "ECMAScript Modules (ESM)",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node/supported-technologies#ecmascript-modules-esm",
+      "type": "prose",
+      "text": "EDOT Node.js includes limited and experimental support for instrumenting [ECMAScript module (ESM) imports](https://nodejs.org/api/esm.html#modules-ecmascript-modules). For example modules that are loaded through `import ...` statements and `import('...')` (dynamic import).",
+      "notes": [
+        "To activate ESM instrumentation, use `node --import @elastic/opentelemetry-node ...` to start the SDK. Using `node --require @elastic/opentelemetry-node ...` does not turn on ESM instrumentation. It is intended to signal that only CommonJS module usage should be instrumented."
+      ]
+    },
+    {
+      "heading": "Limitations",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node/supported-technologies#limitations",
+      "type": "list",
+      "items": [
+        "ESM instrumentation is only supported for Node.js versions `^18.19.0 || >=20.6.0`. These are the versions that include `module.register()` support. Using the older `node --experimental-loader=...` option is not supported.",
+        "Currently, only a subset of instrumentations support ESM: `express`, `ioredis`, `koa`, `pg`, `pino`. Refer to [this OpenTelemetry JS tracking issue](https://github.com/open-telemetry/opentelemetry-js-contrib/issues/1942) for progress."
+      ],
+      "notes": [
+        "The following limitations apply to ESM instrumentation:"
+      ]
+    }
+  ]
+}

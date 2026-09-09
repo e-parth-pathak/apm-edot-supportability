@@ -1,0 +1,190 @@
+{
+  "id": "ios",
+  "language": "iOS",
+  "sources": [
+    {"title": "EDOT iOS", "url": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios"},
+    {"title": "Automatic instrumentation - EDOT iOS", "url": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/automatic-instrumentation"}
+  ],
+  "sections": [
+    {
+      "heading": "Features",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios#features",
+      "type": "prose",
+      "text": "EDOT iOS provides additional features on top of the OpenTelemetry-Swift SDK.",
+      "notes": []
+    },
+    {
+      "heading": "Disk buffering",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios#disk-buffering",
+      "type": "prose",
+      "text": "Your app's telemetry is stored locally before it is sent to Elastic. Data is removed after it is exported successfully or when space is needed for newer telemetry. This minimizes data loss when network connectivity is interrupted.",
+      "notes": [
+        "You can tune this behavior with the [persistent storage configuration](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/configuration#withPersistentStorageConfiguration)."
+      ]
+    },
+    {
+      "heading": "Crash reporting",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios#crash-reporting",
+      "type": "prose",
+      "text": "EDOT iOS captures crashes and reports them as fatal log events the next time the app starts. Crash events contain exception, stack trace, and session information to help you correlate the crash with other telemetry from the same session.",
+      "notes": [
+        "Crash reporting is enabled by default. Refer to [Crash reporting](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/automatic-instrumentation#crash-reporting) for testing instructions and limitations."
+      ]
+    },
+    {
+      "heading": "Central configuration",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios#central-configuration-feature",
+      "type": "prose",
+      "text": "You can remotely manage supported EDOT iOS settings through Kibana. Refer to [Central configuration](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/configuration#central-configuration) for setup instructions and available settings.",
+      "notes": []
+    },
+    {
+      "heading": "Time synchronization",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios#time-synchronization",
+      "type": "prose",
+      "text": "Accurate timestamps are important when you compare telemetry from an app with telemetry from backend services. EDOT iOS synchronizes signal timestamps with a network time source and falls back to the device clock when a synchronized value is unavailable.",
+      "notes": []
+    },
+    {
+      "heading": "Sessions",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios#sessions",
+      "type": "prose",
+      "text": "A session groups spans and log records from a period of app activity by adding a `session.id` attribute. You can also make one sampling decision per session, which preserves the relationship between sampled spans.",
+      "notes": [
+        "Refer to [Session behavior](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/configuration#session-behavior) to configure the sample rate."
+      ]
+    },
+    {
+      "heading": "Automatic instrumentation",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios#automatic-instrumentation",
+      "type": "prose",
+      "text": "EDOT iOS can automatically generate telemetry for supported iOS APIs and app lifecycle events. Automatic instrumentations are bundled with the SDK and are enabled by default.",
+      "notes": [
+        "Refer to [Automatic instrumentation](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/automatic-instrumentation) for supported instrumentations and configuration."
+      ]
+    },
+    {
+      "heading": "Installation",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/automatic-instrumentation#supported-instrumentations-installation",
+      "type": "prose",
+      "text": "Automatic instrumentations are bundled with EDOT iOS. After you add and [initialize the SDK](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/getting-started#initialize), supported instrumentations are enabled by default.",
+      "notes": [
+        "You do not need to add separate instrumentation packages."
+      ]
+    },
+    {
+      "heading": "Supported instrumentations",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/automatic-instrumentation#supported-instrumentations",
+      "type": "list",
+      "items": [
+        "URLSession instrumentation",
+        "View instrumentation",
+        "Crash reporting",
+        "System metrics",
+        "Application lifecycle events"
+      ],
+      "notes": []
+    },
+    {
+      "heading": "URLSession instrumentation",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/automatic-instrumentation#urlsession-instrumentation",
+      "type": "prose",
+      "text": "URLSession instrumentation creates spans for requests made with `URLSession` and injects W3C trace context headers into outgoing requests. These headers connect the mobile span with spans created by an instrumented backend.",
+      "notes": [
+        "By default, EDOT iOS names spans using the HTTP method and destination host, for example `GET api.example.com`.",
+        "When a response has a status code from `400` through `599`, EDOT iOS adds an exception event with the status code and its localized description. Transport errors are also recorded as exception events.",
+        "URLSession spans include the current network connection type when it is available.",
+        "URLSession instrumentation is provided by OpenTelemetry-Swift. Refer to the [URLSession instrumentation source](https://github.com/open-telemetry/opentelemetry-swift/tree/main/Sources/Instrumentation/URLSession) for upstream implementation details."
+      ]
+    },
+    {
+      "heading": "View instrumentation",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/automatic-instrumentation#view-instrumentation",
+      "type": "prose",
+      "text": "EDOT iOS creates spans that measure how long UIKit and SwiftUI-backed views take to appear.",
+      "notes": [
+        "The SDK chooses span names in the following order, from lowest to highest precedence:",
+        "1. The view controller class name followed by ` - view appearing`.",
+        "2. The navigation title or accessibility label followed by ` - view appearing`.",
+        "3. A custom name provided with `reportName(_:)`.",
+        "Class names can be Swift-mangled and are usually less useful than a navigation title or custom name.",
+        "Note",
+        "`reportName(_:)` uses the complete string you provide. Include ` - view appearing` if you want custom names to follow the SDK's default naming format."
+      ]
+    },
+    {
+      "heading": "Crash reporting",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/automatic-instrumentation#crash-reporting",
+      "type": "list",
+      "items": [
+        "Event name `app.crash`.",
+        "Fatal severity.",
+        "Exception type, message, and stack trace.",
+        "The session ID from the crashed app session.",
+        "The last known network connection type on supported iOS devices."
+      ],
+      "notes": [
+        "EDOT iOS captures app crashes and reports them using the OpenTelemetry [Events API](https://opentelemetry.io/docs/specs/otel/logs/event-api/).",
+        "A crash is stored on the device when it occurs. The SDK loads and exports the report on the next app launch as a log event with:",
+        "Crash reporting is enabled by default.",
+        "Crash capture is turned off while a debugger is attached. A crash triggered during a normal Xcode debug session is not recorded.",
+        "Note",
+        "Crash reports are sent on the next app launch, not at the time of the crash."
+      ]
+    },
+    {
+      "heading": "System metrics",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/automatic-instrumentation#system-metrics",
+      "type": "table",
+      "columns": ["Metric", "Description", "Unit"],
+      "rows": [
+        ["`system.cpu.usage`", "CPU used by the app's active threads", "Percentage"],
+        ["`system.memory.usage`", "Physical memory footprint of the app process", "Bytes"]
+      ],
+      "notes": [
+        "EDOT iOS records app CPU and memory usage:",
+        "Both metrics include the attribute `state=app`."
+      ]
+    },
+    {
+      "heading": "Application lifecycle events",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/automatic-instrumentation#app-lifecycle-events",
+      "type": "table",
+      "columns": ["Value", "App transition"],
+      "rows": [
+        ["`active`", "The app became active."],
+        ["`inactive`", "The app is about to become inactive."],
+        ["`background`", "The app entered the background."],
+        ["`foreground`", "The app is about to enter the foreground."],
+        ["`terminate`", "The app is about to terminate."]
+      ],
+      "notes": [
+        "EDOT iOS creates `lifecycle` log events when the app changes state.",
+        "The `lifecycle.state` attribute can have the following values:"
+      ]
+    },
+    {
+      "heading": "Understanding automatic-instrumentation scope",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/automatic-instrumentation#automatic-instrumentation-scope",
+      "type": "list",
+      "items": [
+        "Custom or proprietary frameworks.",
+        "Closed-source components without instrumentation support.",
+        "Application-specific business logic."
+      ],
+      "notes": [
+        "Automatic instrumentation captures telemetry only for the APIs and lifecycle events listed on this page. It cannot instrument:",
+        "If your app uses code that is not covered by automatic instrumentation, use one of the following approaches:",
+        "1. **Native OpenTelemetry support** — Some libraries include instrumentation provided by their vendor.",
+        "2. **Manual instrumentation** — Use the [OpenTelemetry-Swift APIs](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/manual-instrumentation) to create spans, metrics, and logs."
+      ]
+    },
+    {
+      "heading": "SDK compatibility",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/automatic-instrumentation#supported-technologies",
+      "type": "prose",
+      "text": "EDOT iOS currently uses OpenTelemetry-Swift `2.2.1` or later and OpenTelemetry-Swift Core `2.3.0` or later.",
+      "notes": []
+    }
+  ]
+}

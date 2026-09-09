@@ -1,0 +1,49 @@
+{
+  "id": "edot-features",
+  "title": "Elastic features available with Elastic OpenTelemetry",
+  "group": "EDOT compatibility",
+  "sources": [
+    { "title": "Features", "url": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/features" }
+  ],
+  "intro": "The following table shows Elastic features and their level of support and compatibility with Elastic OpenTelemetry. Refer to the [SDKs Overview](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks) for SDK-specific features.",
+  "introSourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/features",
+  "sections": [
+    {
+      "heading": "Elastic features and their support level with Elastic OpenTelemetry",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/features",
+      "type": "table",
+      "columns": ["Feature", "Compatibility", "Support level"],
+      "rows": [
+        ["**APM**", "Compatible", "Supported"],
+        ["[Service Maps](https://www.elastic.co/docs/solutions/observability/apm/service-map)", "Compatible", "Supported"],
+        ["[Distributed Tracing](https://www.elastic.co/docs/solutions/observability/apm/traces-ui)", "Compatible", "Supported"],
+        ["[Head-based Sampling (HBS)](https://www.elastic.co/docs/solutions/observability/apm/transaction-sampling#apm-head-based-sampling)", "Compatible", "Supported"],
+        ["[Tail-based Sampling (TBS)](https://www.elastic.co/docs/solutions/observability/apm/transaction-sampling#apm-tail-based-sampling)", "Compatible⁴", "Not supported"],
+        ["[Self-managed, OTel Collector-based TBS](https://opentelemetry.io/blog/2022/tail-sampling/)", "Compatible⁴", "Not supported"],
+        ["TBS managed / hosted in Elastic Cloud", "Incompatible", "Not supported"],
+        ["Runtime metrics", "[See language-specific overview](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks)", "-"],
+        ["**Infrastructure Monitoring**", "Compatible", "Supported"],
+        ["Host view¹", "Compatible", "Supported"],
+        ["Kubernetes dashboard", "Compatible", "Supported"],
+        ["**Logs Collection**", "Compatible", "Supported"],
+        ["OTel-native, Collector-based logs parsing & processing", "Compatible", "Supported"],
+        ["OTel-native, Collector-based data routing", "Compatible", "Supported"],
+        ["Managed, centralized processing²", "Incompatible", "Not supported"],
+        ["User-defined Elasticsearch ingest pipelines²", "Compatible", "Not supported"],
+        ["**Metrics Collection**³", "Compatible", "Supported"],
+        ["Automatic metrics mapping", "Compatible", "Supported"],
+        ["Usage of [Time Series Data Streams](https://www.elastic.co/docs/manage-data/data-store/data-streams/time-series-data-stream-tsds)", "Compatible", "Supported"],
+        ["**Central Management**", "Incompatible", "Not supported"],
+        ["Central management of OTel collectors", "Incompatible", "Not supported"],
+        ["Central management of OTel SDKs", "Compatible", "Supported"]
+      ],
+      "notes": [
+        "¹ Refer to [limitations on host metrics](https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#infrastructure-and-host-metrics)",
+        "² Refer to [limitations on Ingest Pipelines](https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#centralized-parsing-and-processing-of-data)",
+        "³ Refer to [limitations on metrics ingestion](https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#metrics-data-ingestion)",
+        "⁴ While ingesting traces that have been sampled using TBS is technically possible, there are important limitations to consider. Refer to [Tail-based sampling (TBS) limitations](https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#tail-based-sampling-tbs) for more information.",
+        "In the source page, each 'Compatible' / 'Incompatible' / 'Supported' / 'Not supported' cell links to [Nomenclature](https://www.elastic.co/docs/reference/opentelemetry/compatibility/nomenclature)."
+      ]
+    }
+  ]
+}

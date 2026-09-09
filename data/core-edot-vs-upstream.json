@@ -1,0 +1,90 @@
+{
+  "id": "edot-vs-upstream",
+  "title": "Elastic OpenTelemetry compared to upstream",
+  "group": "EDOT compatibility",
+  "sources": [
+    { "title": "Elastic OpenTelemetry compared to upstream", "url": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/edot-vs-upstream" }
+  ],
+  "intro": "[Elastic OpenTelemetry](https://www.elastic.co/docs/reference/opentelemetry) are a set of [OpenTelemetry distributions](https://opentelemetry.io/docs/concepts/distributions/) curated, tested, and supported by Elastic. Each Elastic OpenTelemetry component builds on its upstream counterpart, adding production-ready defaults, Elastic-specific capabilities, and official support backed by [Elastic's Support Policy](https://www.elastic.co/support_policy) and SLAs.",
+  "introSourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/edot-vs-upstream",
+  "sections": [
+    {
+      "heading": "Key differences: Elastic OpenTelemetry vs Upstream",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/edot-vs-upstream",
+      "type": "table",
+      "columns": ["Aspect", "Elastic OpenTelemetry", "Upstream"],
+      "rows": [
+        ["Configuration", "Pre-configured defaults for Elastic Observability.", "Requires manual component selection and configuration."],
+        ["Support", "Official Elastic support with SLAs.", "Community support."],
+        ["Integration", "Seamless integration with Elastic Stack components.", "Requires additional configuration for Elastic."],
+        ["Components", "Curated, production-tested components optimized for Elastic, including preselected instrumentations for zero-code setup.", "Broad ecosystem. Component maturity levels vary. Instrumentations must be selected and configured manually."],
+        ["Deployment", "Same deployment methods as upstream, with ready-to-use default configurations.", "Users provide their own configuration."],
+        ["Central management", "Central configuration of SDKs and Collectors through [OpAMP](https://www.elastic.co/docs/reference/opentelemetry/central-configuration), including a managed OpAMP server.", "OpAMP protocol is supported, but no managed server is provided."],
+        ["Compatibility", "Fully tested with Elastic Stack components.", "Compatible, but not tested or supported by Elastic."],
+        ["Updates", "Elastic Agent releases align with Elastic Stack. EDOT SDKs follow the upstream OpenTelemetry release cycle.", "Follows the upstream OpenTelemetry release cycle."]
+      ],
+      "notes": [
+        "Elastic OpenTelemetry is always optional. Elastic's OTLP ingestion APIs are vendor-agnostic and preserve OpenTelemetry semantic conventions, so any upstream or third-party OpenTelemetry component that speaks OTLP can send data to the Elastic Stack. Upstream components are technically [Compatible](https://www.elastic.co/docs/reference/opentelemetry/compatibility/nomenclature) but receive community support only."
+      ]
+    },
+    {
+      "heading": "EDOT SDK capabilities not (yet) available upstream",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/edot-vs-upstream#edot-sdks",
+      "type": "table",
+      "columns": ["Capability", "Status"],
+      "rows": [
+        ["Inferred spans", "Available in Elastic OpenTelemetry only. Generates spans from profiling data without manual instrumentation, closing visibility gaps that auto-instrumentation does not cover."],
+        ["Central configuration", "Available in Elastic OpenTelemetry only. Manages SDK settings from Kibana through the Elastic Agent using [OpAMP](https://www.elastic.co/docs/reference/opentelemetry/central-configuration). Most SDKs apply configuration changes dynamically, without restarting or redeploying applications."],
+        ["Profiling integration", "Available in EDOT Java only. Correlates traces with continuous profiling data for deeper performance analysis."],
+        ["Crash reporting", "Available in Elastic OpenTelemetry only. Captures native crash data on mobile platforms for post-mortem analysis."]
+      ],
+      "notes": [
+        "Due to current upstream limitations, some capabilities are temporarily available only in EDOT SDKs. Elastic is actively working to contribute these upstream so that they become part of the standard OpenTelemetry SDKs.",
+        "Important: EDOT SDKs are designed to export telemetry through the [Elastic Agent](https://www.elastic.co/docs/reference/edot-collector) or the [Elastic Cloud Managed OTLP Endpoint](https://www.elastic.co/docs/reference/opentelemetry/managed-inputs/managed-otlp-endpoint). Using EDOT SDKs directly with APM Server's OpenTelemetry intake is not supported — attribute mapping, enrichment, and processing pipelines are not guaranteed on that path."
+      ]
+    },
+    {
+      "heading": "Available EDOT SDKs",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/edot-vs-upstream#edot-sdks",
+      "type": "list",
+      "items": [
+        "[EDOT .NET](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/dotnet)",
+        "[EDOT Java](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/java)",
+        "[EDOT Node.js](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node)",
+        "[EDOT PHP](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php)",
+        "[EDOT Python](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/python)",
+        "[EDOT Android](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android)",
+        "[EDOT iOS](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios)"
+      ],
+      "notes": ["This list is as stated on the edot-vs-upstream page. The [EDOT SDKs overview](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks) page additionally lists Browser."]
+    },
+    {
+      "heading": "Elastic Agent",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/edot-vs-upstream#agent",
+      "type": "prose",
+      "text": "The upstream OpenTelemetry project does not ship a single, recommended Collector distribution for production use. Instead, it offers a core Collector and a contrib Collector whose components have [mixed stability levels](https://opentelemetry.io/docs/collector/). Assembling a production-ready Collector from these components requires careful selection, configuration, and testing.\n\nElastic Agent is a curated distribution that eliminates this assembly step. It includes specific components and configurations optimized for Elastic Observability, and it ships with Elastic-specific components that are not available in contrib, such as the `elasticsearchexporter` for native ingestion into Elasticsearch and the `elasticapmintakereceiver` for backward-compatible APM intake. These components are developed by Elastic with the intent of contributing them upstream over time.\n\nElastic Agent ships with [default configurations](https://www.elastic.co/docs/reference/edot-collector/config/default-config-standalone) for common deployment scenarios, including [standalone](https://www.elastic.co/docs/reference/edot-collector/config/default-config-standalone) and [Kubernetes](https://www.elastic.co/docs/reference/edot-collector/config/default-config-k8s). In self-managed Elastic Stack deployments, the Elastic Agent running in [gateway mode](https://www.elastic.co/docs/reference/edot-collector/modes) replaces APM Server for OTel-native data ingestion, handling metrics aggregation and format conversion before writing to Elasticsearch.",
+      "notes": []
+    },
+    {
+      "heading": "Kubernetes Operator",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/edot-vs-upstream#kubernetes-operator",
+      "type": "prose",
+      "text": "Elastic OpenTelemetry does not ship its own Kubernetes operator. Instead, Elastic OpenTelemetry deployments on Kubernetes rely on the upstream [OpenTelemetry Operator](https://opentelemetry.io/docs/platforms/kubernetes/operator/), which manages Collector deployments and auto-instrumentation of workloads through Kubernetes custom resource definitions (CRDs).\n\nIn an Elastic OpenTelemetry-based Kubernetes setup, the operator's `OpenTelemetryCollector` CRD deploys Elastic Agent images as DaemonSets, Deployments, or StatefulSets, and the `Instrumentation` CRD is configured to inject EDOT SDK images (for example, `docker.elastic.co/observability/elastic-otel-javaagent`) instead of the default upstream images.\n\nThis creates a dual support model. The operator itself is an upstream community project and receives community support. The Elastic Agent and SDK images that the operator deploys are covered by Elastic support under the same terms as their standalone counterparts. When filing issues, distinguish between operator behavior (community support) and Elastic OpenTelemetry component behavior (Elastic support).",
+      "notes": []
+    },
+    {
+      "heading": "Elastic Cloud Forwarder",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/edot-vs-upstream#edot-cf",
+      "type": "prose",
+      "text": "The [Elastic Cloud Forwarder](https://www.elastic.co/docs/reference/opentelemetry/edot-cloud-forwarder) are Elastic-specific components with no upstream equivalent. They package the Elastic Agent as a cloud function — AWS Lambda, Azure Function, or GCP Cloud Run — to collect telemetry from cloud provider services such as S3, CloudWatch, Blob Storage, Event Hub, GCS, and GCP Operations, and forward it to the [Elastic Cloud Managed OTLP Endpoint](https://www.elastic.co/docs/reference/opentelemetry/managed-inputs/managed-otlp-endpoint).\n\nBecause there is no upstream counterpart, the Elastic OpenTelemetry-versus-upstream comparison does not apply to Cloud Forwarders.",
+      "notes": []
+    },
+    {
+      "heading": "OTel Demo",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/edot-vs-upstream#otel-demo",
+      "type": "prose",
+      "text": "The upstream [OpenTelemetry Demo](https://opentelemetry.io/docs/demo/) is a multi-service reference application instrumented in over a dozen languages. Elastic maintains a [fork of the demo](https://github.com/elastic/opentelemetry-demo) that replaces these default backends with an Elastic Stack deployment. The fork ships Elastic Agent configurations for both Kubernetes and host scenarios.\n\nThe Elastic OpenTelemetry demo is a learning and showcase tool, not a production artifact. Elastic does not provide support for the demo application itself, but the Elastic OpenTelemetry components running within it follow the same support terms as their standalone releases.",
+      "notes": []
+    }
+  ]
+}

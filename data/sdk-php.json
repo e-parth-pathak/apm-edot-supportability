@@ -1,0 +1,221 @@
+{
+  "id": "php",
+  "language": "PHP",
+  "sources": [
+    {
+      "title": "EDOT PHP",
+      "url": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php"
+    },
+    {
+      "title": "Supported technologies - EDOT PHP",
+      "url": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "Features",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php#features",
+      "type": "list",
+      "items": [
+        "SDK improvements and bug fixes contributed by the Elastic team before the changes are available in OpenTelemetry repositories.",
+        "Optional features that can enhance OpenTelemetry data that is being sent to Elastic.",
+        "Elastic-specific processors that ensure optimal compatibility when exporting OpenTelemetry signal data to an Elastic backend like an Elastic Observability deployment.",
+        "Preconfigured collection of tracing and metrics signals, applying some opinionated defaults, such as which sources are collected by default. For example, the OpenTelemetry protocol (OTLP) exporter is enabled by default.",
+        "Built-in support for asynchronous data transmission, reducing request latency",
+        "Out-of-the-box auto-instrumentation — no need to modify your code. EDOT PHP takes care of enabling telemetry collection automatically.",
+        "Additional runtime features such as automatic root span creation, URL grouping, and inferred spans to provide richer and more structured trace data with minimal setup.",
+        "Compatibility with APM Agent Central Configuration to modify the settings of the EDOT PHP agent without having to restart the application."
+      ],
+      "notes": [
+        "In addition to all the features of OpenTelemetry PHP, with EDOT PHP you have access to the following:"
+      ]
+    },
+    {
+      "heading": "Technologies supported by EDOT PHP",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies",
+      "type": "prose",
+      "text": "EDOT PHP is a [distribution](https://opentelemetry.io/docs/concepts/distributions/) of OpenTelemetry PHP. It inherits all the [supported](https://www.elastic.co/docs/reference/opentelemetry/compatibility/nomenclature) technologies of the OpenTelemetry PHP.",
+      "notes": [
+        "Note - Understanding auto-instrumentation scope",
+        "Auto-instrumentation automatically captures telemetry for the frameworks and libraries listed on this page. However, it cannot instrument:",
+        "Custom or proprietary frameworks and libraries",
+        "Closed-source components without instrumentation support",
+        "Application-specific business logic",
+        "If your application uses technologies not covered by auto-instrumentation, you have two options:",
+        "1. **Native OpenTelemetry support** — Some frameworks and libraries include built-in OpenTelemetry instrumentation provided by the vendor.",
+        "2. **Manual instrumentation** — Use the [OpenTelemetry API](https://opentelemetry.io/docs/languages/php/instrumentation/) to add custom spans, metrics, and logs for unsupported components."
+      ]
+    },
+    {
+      "heading": "EDOT Collector and Elastic Stack versions",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#edot-collector-and-elastic-stack-versions",
+      "type": "prose",
+      "text": "EDOT PHP sends data through the OpenTelemetry protocol (OTLP). While OTLP ingest works with later 8.16+ versions of the EDOT Collector, for full support use either [EDOT Collector](https://www.elastic.co/docs/reference/edot-collector) versions 9.x or [Elastic Cloud Serverless](https://www.elastic.co/docs/deploy-manage/deploy/elastic-cloud/serverless) for OTLP ingest.",
+      "notes": [
+        "Note",
+        "Ingesting data from EDOT SDKs through EDOT Collector 9.x into Elastic Stack versions 8.18+ is supported.",
+        "Refer to [EDOT SDKs compatibility](https://www.elastic.co/docs/reference/opentelemetry/compatibility/sdks) for support details."
+      ]
+    },
+    {
+      "heading": "PHP versions",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#php-versions",
+      "type": "prose",
+      "text": "EDOT PHP supports PHP versions 8.1 to 8.5.",
+      "notes": [
+        "Unlike the OpenTelemetry PHP agent, EDOT PHP supports extension-level instrumentation starting from PHP 8.1. This allows you to capture detailed traces from libraries such as cURL, PDO, and MySQLi even in PHP 8.1 environments."
+      ]
+    },
+    {
+      "heading": "Supported PHP SAPIs",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#supported-php-sapis",
+      "type": "list",
+      "items": [
+        "php-cli",
+        "php-fpm",
+        "php-cgi/fcgi",
+        "mod_php (prefork)"
+      ],
+      "notes": [
+        "The following SAPIs are supported:",
+        "EDOT PHP supports all popular variations of using PHP in combination with a web server, such as Apache with mod_php, Apache with php_fpm or cgi, NGINX with php_fpm or cgi, and others."
+      ]
+    },
+    {
+      "heading": "Supported operating systems",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#supported-operating-systems",
+      "type": "list",
+      "items": [
+        "Linux",
+        "Architectures: x86_64 and ARM64",
+        "glibc-based systems: Packages available as DEB and RPM",
+        "musl libc-based systems (Alpine Linux): Packages available as APK"
+      ],
+      "notes": [
+        "The following operating systems are supported:",
+        "\"Architectures: x86_64 and ARM64\", \"glibc-based systems: Packages available as DEB and RPM\", and \"musl libc-based systems (Alpine Linux): Packages available as APK\" appear as sub-bullets nested under \"Linux\" on the page."
+      ]
+    },
+    {
+      "heading": "Instrumented frameworks",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#instrumented-frameworks",
+      "type": "list",
+      "items": [
+        "Laravel `6.x` to `13.x`",
+        "Slim `4.x`"
+      ],
+      "notes": [
+        "The following frameworks are supported:"
+      ]
+    },
+    {
+      "heading": "Instrumented libraries",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#instrumented-libraries",
+      "type": "list",
+      "items": [
+        "Curl versions 8.1 to 8.5",
+        "HTTP Async (php-http/httplug) version 2.x",
+        "MySQLi versions 8.1 to 8.5",
+        "PDO versions 8.1 to 8.5",
+        "PSR-18 HTTP Client (`psr/http-client`)"
+      ],
+      "notes": [
+        "The following libraries are supported:"
+      ]
+    },
+    {
+      "heading": "Instrumentations",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#instrumentations",
+      "type": "table",
+      "columns": ["Name", "Included from EDOT PHP version", "Link to packagist.org"],
+      "rows": [
+        ["curl", "1.0", "[open-telemetry/opentelemetry-auto-curl](https://packagist.org/packages/open-telemetry/opentelemetry-auto-curl)"],
+        ["http-async-client", "1.0", "[open-telemetry/opentelemetry-auto-http-async](https://packagist.org/packages/open-telemetry/opentelemetry-auto-http-async)"],
+        ["laravel", "1.0", "[open-telemetry/opentelemetry-auto-laravel](https://packagist.org/packages/open-telemetry/opentelemetry-auto-laravel)"],
+        ["mysqli", "1.0", "[open-telemetry/opentelemetry-auto-mysqli](https://packagist.org/packages/open-telemetry/opentelemetry-auto-mysqli)"],
+        ["pdo", "1.0", "[open-telemetry/opentelemetry-auto-pdo](https://packagist.org/packages/open-telemetry/opentelemetry-auto-pdo)"],
+        ["postgresql", "1.2", "[open-telemetry/opentelemetry-auto-postgresql](https://packagist.org/packages/open-telemetry/opentelemetry-auto-postgresql)"],
+        ["psr18", "1.7.0", "[open-telemetry/opentelemetry-auto-psr18](https://packagist.org/packages/open-telemetry/opentelemetry-auto-psr18)"],
+        ["slim", "1.0", "[open-telemetry/opentelemetry-auto-slim](https://packagist.org/packages/open-telemetry/opentelemetry-auto-slim)"]
+      ],
+      "notes": [
+        "The following instrumentations are included in EDOT PHP."
+      ]
+    },
+    {
+      "heading": "Included metrics packages",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#included-metrics-packages",
+      "type": "table",
+      "columns": ["Included from EDOT PHP version", "Package", "Emitted metrics"],
+      "rows": [
+        ["1.8.0", "[open-telemetry/opentelemetry-metrics-runtime](https://packagist.org/packages/open-telemetry/opentelemetry-metrics-runtime)", "PHP memory usage, GC cycles, peak memory"]
+      ],
+      "notes": []
+    },
+    {
+      "heading": "Truly zero-config auto-instrumentation",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#truly-zero-config-auto-instrumentation",
+      "type": "prose",
+      "text": "Unlike the OpenTelemetry PHP agent, EDOT PHP works fully automatically. There is no need to modify your application code, add Composer packages, or adjust deployment scripts. Once the system package is installed, EDOT PHP automatically detects your application and injects the instrumentation code at runtime, without requiring manual integration.",
+      "notes": [
+        "Appears under the \"Additional features and improvements\" heading (https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#additional-features-and-improvements)."
+      ]
+    },
+    {
+      "heading": "Automatic Root/Transaction Span",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#automatic-roottransaction-span",
+      "type": "prose",
+      "text": "EDOT PHP automatically creates the root span for each incoming request, providing a consistent entry point for trace data without requiring manual instrumentation.",
+      "notes": [
+        "Appears under the \"Additional features and improvements\" heading (https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#additional-features-and-improvements)."
+      ]
+    },
+    {
+      "heading": "Root/Transaction Span URL Grouping",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#roottransaction-span-url-grouping",
+      "type": "prose",
+      "text": "Transaction spans are grouped by URL patterns to reduce cardinality and improve readability in dashboards and trace views.",
+      "notes": [
+        "Appears under the \"Additional features and improvements\" heading (https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#additional-features-and-improvements)."
+      ]
+    },
+    {
+      "heading": "Inferred Spans",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#inferred-spans",
+      "type": "prose",
+      "text": "EDOT PHP automatically detects and generates spans for common operations like database queries or HTTP calls, even when no manual instrumentation is present.",
+      "notes": [
+        "Appears under the \"Additional features and improvements\" heading (https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#additional-features-and-improvements)."
+      ]
+    },
+    {
+      "heading": "Attribute-based instrumentation",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#attribute-based-instrumentation",
+      "type": "prose",
+      "text": "EDOT PHP can automatically create spans from PHP 8.1 attributes (`#[WithSpan]`, `#[SpanAttribute]`) without writing instrumentation code. This feature is deactivated by default. Activate it by setting `OTEL_PHP_ATTR_HOOKS_ENABLED=true`. For details, refer to [Attribute-based instrumentation](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/attribute-instrumentation).",
+      "notes": [
+        "Appears under the \"Additional features and improvements\" heading (https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#additional-features-and-improvements)."
+      ]
+    },
+    {
+      "heading": "PHP runtime metrics",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#php-runtime-metrics",
+      "type": "prose",
+      "text": "EDOT PHP automatically exports PHP runtime metrics — memory usage, garbage collection cycles, and peak memory — via the native async OTLP transport. EDOT PHP requires no configuration to emit these metrics. It starts exporting as soon as it loads.",
+      "notes": [
+        "Appears under the \"Additional features and improvements\" heading (https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#additional-features-and-improvements)."
+      ]
+    },
+    {
+      "heading": "Asynchronous data sending",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies#asynchronous-data-sending",
+      "type": "prose",
+      "text": "Telemetry data is sent in the background to avoid impacting application performance. This ensures minimal latency and efficient resource usage.",
+      "notes": [
+        "Note",
+        "EDOT PHP supports background data transmission (non-blocking export), but only when the exporter is set to `http/protobuf` (OTLP over HTTP), which is the default configuration.",
+        "If you change the exporter or the transport protocol, for example to gRPC or another format, telemetry will be sent synchronously, potentially impacting request latency."
+      ]
+    }
+  ]
+}

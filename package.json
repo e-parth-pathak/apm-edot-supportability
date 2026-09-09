@@ -1,0 +1,21 @@
+{
+  "name": "elastic-compat-matrix",
+  "version": "1.0.0",
+  "description": "Interactive explorer for Elastic APM agent, EDOT/OpenTelemetry and Synthetics compatibility & support matrices. Every value is a verbatim transcription of the linked Elastic doc page.",
+  "private": true,
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "node dev.js",
+    "build": "node build.js",
+    "start": "node build.js && node server.js",
+    "serve": "node server.js",
+    "verify": "node verify.js && node check-quotes.js && node check-css.js",
+    "test": "node build.js && node test-engine.js && node test-ui.js",
+    "check": "node verify.js && node check-quotes.js && node check-css.js && node build.js && node test-engine.js && node test-ui.js"
+  },
+  "dependencies": {},
+  "license": "UNLICENSED"
+}

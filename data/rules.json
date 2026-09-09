@@ -1,0 +1,533 @@
+{
+  "note": "Cited rules engine. EVERY rule carries a `quote` that appears verbatim in one of the data/*.json datasets, plus the `sourceUrl` of the doc page it came from. verify.js fails the build if a rule has no quote/sourceUrl, and check-quotes.js fails if a quote cannot be found in the scraped data. Rules never assert anything the docs do not state; where the docs are silent the engine emits 'not-documented' instead of guessing.",
+  "verdicts": {
+    "supported": "Elastic provides official support. Explicitly tested, limitations documented.",
+    "compatible-unsupported": "Technically compatible but Elastic does not provide official support.",
+    "incompatible": "Technically not compatible. Functionality likely significantly impacted.",
+    "preview": "In technical preview per Elastic's own legend.",
+    "not-available": "Not available in this SDK per Elastic's own legend.",
+    "not-applicable": "Not applicable to this SDK per Elastic's own legend.",
+    "not-documented": "Elastic's docs do not state a verdict for this combination. No conclusion is drawn."
+  },
+  "verdictSource": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/nomenclature",
+
+  "stackBands": {
+    "note": "Band labels are taken verbatim from the column headers of the two compatibility tables. Used to map a user-entered Stack version onto a documented column.",
+    "collector": [
+      { "id": "lt-8.16",   "label": "ELK < 8.16",          "min": null,   "maxExclusive": "8.16" },
+      { "id": "8.16-8.17", "label": "ELK 8.16 - 8.17",     "min": "8.16", "maxExclusive": "8.18" },
+      { "id": "8.18-8.19", "label": "ELK 8.18 - 8.19",     "min": "8.18", "maxExclusive": "9.0"  },
+      { "id": "9.0+",      "label": "ELK 9.0 and later",   "min": "9.0",  "maxExclusive": null   }
+    ],
+    "collectorSourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#collector-9",
+    "agent": [
+      { "id": "lt-8.16",   "label": "< 8.16",       "min": null,   "maxExclusive": "8.16" },
+      { "id": "8.16-8.19", "label": "8.16 to 8.19", "min": "8.16", "maxExclusive": "9.0"  },
+      { "id": "9.x",       "label": "9.x",          "min": "9.0",  "maxExclusive": "10.0" }
+    ],
+    "agentSourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/sdks"
+  },
+
+  "rules": [
+    {
+      "id": "collector-stack-band",
+      "kind": "collector-vs-stack",
+      "applies": "Elastic Agent 9.x against an Elastic Stack (ELK) version",
+      "table": {
+        "lt-8.16":   { "compatibility": "Incompatible", "support": "Not supported" },
+        "8.16-8.17": { "compatibility": "Compatible",   "support": "Not supported" },
+        "8.18-8.19": { "compatibility": "Compatible",   "support": "Supported"     },
+        "9.0+":      { "compatibility": "Compatible",   "support": "Supported"     }
+      },
+      "quote": "If you're on Elastic Stack 8.18 or 8.19 and require Elastic support, use Elastic Agent version 9.x, as this combination is officially [Supported](https://www.elastic.co/docs/reference/opentelemetry/compatibility/nomenclature).",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#collector-9",
+      "datasetId": "edot-collectors"
+    },
+    {
+      "id": "collector-config-8.18-8.19",
+      "kind": "advisory",
+      "when": { "stackBand": ["8.18-8.19"] },
+      "verdict": "supported",
+      "headline": "Keep your Stack-version config, not the Agent 9.x defaults",
+      "quote": "Configuration compatibility: If you upgrade to Elastic Agent 9.x while running Elastic Stack 8.18 or 8.19, continue using the configuration recommended for your Stack version, not the Elastic Agent 9.x default configuration. This ensures full compatibility with Kibana Observability applications. ([#configuration-compatibility](https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#configuration-compatibility))",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#configuration-compatibility",
+      "datasetId": "edot-collectors"
+    },
+    {
+      "id": "sdk-agent-band",
+      "kind": "sdk-vs-agent",
+      "applies": "Any EDOT SDK against an Elastic Agent version",
+      "table": {
+        "lt-8.16":   { "compatibility": "Incompatible", "support": "Not supported" },
+        "8.16-8.19": { "compatibility": "Compatible",   "support": "Not supported" },
+        "9.x":       { "compatibility": "Compatible",   "support": "Supported"     }
+      },
+      "appliesToSdks": ["EDOT .NET", "EDOT Java", "EDOT Node.js", "EDOT PHP", "EDOT Python", "EDOT Android", "EDOT iOS"],
+      "quote": "This applies to all EDOT SDKs: EDOT .NET, EDOT Java, EDOT Node.js, EDOT PHP, EDOT Python, EDOT Android, EDOT iOS.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/sdks",
+      "datasetId": "edot-sdks-compat"
+    },
+    {
+      "id": "sdk-into-stack-8.18-plus",
+      "kind": "advisory",
+      "verdict": "supported",
+      "headline": "EDOT SDKs via Elastic Agent into Stack 8.18+ is supported",
+      "quote": "Note: Ingesting data from EDOT SDKs through Elastic Agent into Elastic Stack versions 8.18 or higher is supported (Supported).",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/sdks",
+      "datasetId": "edot-sdks-compat"
+    },
+
+    {
+      "id": "path-agent-gateway",
+      "kind": "ingestion-path",
+      "pathId": "agent-gateway",
+      "label": "Elastic Agent (Gateway)",
+      "verdict": "supported",
+      "quote": "Fully tested and recommended.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/sdks#support-matrix-for-edot-sdk-ingestion",
+      "datasetId": "edot-sdks-compat"
+    },
+    {
+      "id": "path-managed-otlp",
+      "kind": "ingestion-path",
+      "pathId": "managed-otlp",
+      "label": "Elastic Cloud Managed OTLP Endpoint",
+      "verdict": "supported",
+      "quote": "Fully supported for Elastic Cloud Serverless and Elastic Cloud Hosted.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/sdks#support-matrix-for-edot-sdk-ingestion",
+      "datasetId": "edot-sdks-compat"
+    },
+    {
+      "id": "path-apm-server-otel",
+      "kind": "ingestion-path",
+      "pathId": "apm-server-otel",
+      "label": "APM Server OTel intake",
+      "verdict": "not-supported",
+      "headline": "EDOT SDKs sending directly to APM Server's OTel intake is not supported",
+      "quote": "Telemetry might ingest but mapping, enrichment, and troubleshooting are not guaranteed.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/sdks#support-matrix-for-edot-sdk-ingestion",
+      "datasetId": "edot-sdks-compat",
+      "remedy": "If you require a supported setup, route SDK telemetry through Elastic Agent or use Managed OTel intake.",
+      "remedyQuote": "If you require a supported setup, route SDK telemetry through Elastic Agent or use Managed OTel intake.",
+      "remedySourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks#support-for-edot-sdks",
+      "remedyDatasetId": "edot-sdk-features"
+    },
+
+    {
+      "id": "no-mixing-agents",
+      "kind": "hazard",
+      "trigger": { "classicAgentAndEdotSdkSameProcess": true },
+      "verdict": "incompatible",
+      "headline": "Do not run an EDOT SDK alongside a classic Elastic APM agent",
+      "quote": "Warning: Avoid using EDOT SDKs alongside any other APM agent, including Elastic APM agents. Running multiple agents in the same application process might lead to conflicting instrumentation, duplicate telemetry, or other unexpected behavior.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks#support-for-edot-sdks",
+      "datasetId": "edot-sdk-features"
+    },
+    {
+      "id": "service-name-charset",
+      "kind": "hazard",
+      "trigger": { "serviceNameInvalid": true },
+      "verdict": "incompatible",
+      "headline": "service.name contains characters Elastic APM does not allow",
+      "quote": "The `service.name` must conform to this regular expression: `^[a-zA-Z0-9 _-]+$`. Your service name must only contain characters from the ASCII alphabet, numbers, dashes, underscores, and spaces.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#limitations-with-apm",
+      "datasetId": "edot-limitations",
+      "regex": "^[a-zA-Z0-9 _-]+$"
+    },
+    {
+      "id": "histogram-cumulative-es-exporter",
+      "kind": "hazard",
+      "trigger": { "path": ["agent-gateway"], "cumulativeHistograms": true },
+      "verdict": "incompatible",
+      "headline": "Cumulative-temporality histograms are dropped by the Collector Elasticsearch exporter",
+      "quote": "The collector Elasticsearch exporter does not yet support `cumulative` temporality for histograms and counters. Ingestion of OpenTelemetry metrics with the type `Histogram` is only supported with `delta` temporality. Histograms with `cumulative` temporality are dropped before being ingested into Elasticsearch.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#histogram-and-counter-temporality",
+      "datasetId": "edot-limitations",
+      "remedy": "Export histogram metrics with delta temporality, or use the cumulativetodelta processor. Alternatively the Managed OTLP Endpoint supports both temporalities.",
+      "remedyQuote": "Make sure to export histogram metrics with `delta` temporality or use the [`cumulativetodelta processor`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/cumulativetodeltaprocessor) as a workaround to convert the temporality for histogram metrics when using the collector Elasticsearch exporter.",
+      "remedySourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#histogram-and-counter-temporality",
+      "remedyDatasetId": "edot-limitations"
+    },
+    {
+      "id": "histogram-cumulative-managed-otlp-ok",
+      "kind": "advisory",
+      "trigger": { "path": ["managed-otlp"], "cumulativeHistograms": true },
+      "verdict": "supported",
+      "headline": "Managed OTLP Endpoint accepts both delta and cumulative temporality",
+      "quote": "Both [`delta` and `cumulative` temporality](https://opentelemetry.io/docs/specs/otel/metrics/data-model/#temporality) are supported for [`Histogram`](https://opentelemetry.io/docs/specs/otel/metrics/data-model/#histogram) and counter metrics. Cumulative temporality for histograms additionally requires the `xpack.otel_data.histogram_field_type` cluster setting to be set to `exponential_histogram`, which is the default.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#histogram-and-counter-temporality",
+      "datasetId": "edot-limitations"
+    },
+    {
+      "id": "exemplars-dropped",
+      "kind": "hazard",
+      "trigger": { "exemplars": true },
+      "verdict": "not-available",
+      "headline": "Exemplars are discarded on ingest",
+      "quote": "Exemplars: Exemplars are discarded when ingesting metrics. Support for exemplars is planned for a future release. ([#exemplars](https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#exemplars))",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#exemplars",
+      "datasetId": "edot-limitations"
+    },
+    {
+      "id": "managed-k8s-permissions",
+      "kind": "hazard",
+      "trigger": { "managedKubernetes": true },
+      "verdict": "compatible-unsupported",
+      "headline": "Default configs don't fully work on GKE Autopilot / AWS Fargate",
+      "quote": "Due to limitations with permissions on managed Kubernetes environments, such as GKE Autopilot or AWS Fargate, the default configurations and onboarding flows for Elastic OpenTelemetry don't fully work in those environments. This might result in decreased collection of data and certain observability views not showing that data.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#limitations-on-managed-kubernetes-environments",
+      "datasetId": "edot-limitations"
+    },
+    {
+      "id": "macos-collector-not-supported",
+      "kind": "hazard",
+      "trigger": { "os": ["macos"] },
+      "verdict": "not-supported",
+      "headline": "Elastic Agent 9.x on macOS is compatible but Not supported",
+      "quote": "macOS 10.x and higher",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#os-collector-9",
+      "datasetId": "edot-collectors",
+      "extra": "The OS table lists macOS amd64 and arm64 with Level of support = Not supported. Additionally: 'MacOS collectors do not support CPU and disk metrics.'"
+    },
+    {
+      "id": "windows-collector-not-supported",
+      "kind": "hazard",
+      "trigger": { "os": ["windows"] },
+      "verdict": "not-supported",
+      "headline": "Elastic Agent 9.x on Windows Server is compatible but Not supported",
+      "quote": "Server 2022, 2022 Core, 2019, 2019 Core, 2016, 2016 Core",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#os-collector-9",
+      "datasetId": "edot-collectors"
+    },
+
+    {
+      "id": "migration-rum",
+      "kind": "migration-gap",
+      "featureId": "rum",
+      "label": "Real user monitoring (RUM)",
+      "verdict": "preview",
+      "headline": "EDOT Browser is tech preview — keep the classic RUM agent for production",
+      "quote": "[EDOT Browser](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/browser) provides OTel-native browser instrumentation. However, since it is in technical preview, continue using the classic Elastic APM [browser agent](https://www.elastic.co/docs/reference/apm/agents/rum-js) for production RUM.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#when-to-use-the-classic-stack-ingestion-components-instead-of-edot",
+      "datasetId": "edot-limitations"
+    },
+    {
+      "id": "migration-profiling",
+      "kind": "migration-gap",
+      "featureId": "universal-profiling",
+      "label": "Universal profiling",
+      "verdict": "not-available",
+      "headline": "Universal Profiling is classic-stack only",
+      "quote": "This capability is currently only supported in the classic stack.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#when-to-use-the-classic-stack-ingestion-components-instead-of-edot",
+      "datasetId": "edot-limitations"
+    },
+    {
+      "id": "migration-ecs-dashboards",
+      "kind": "migration-gap",
+      "featureId": "ecs-integrations-dashboards",
+      "label": "Existing ECS-based integrations and dashboards",
+      "verdict": "compatible-unsupported",
+      "headline": "Prebuilt ECS dashboards may not work without customization",
+      "quote": "Many prebuilt Elastic integrations and dashboards are designed for ECS-formatted data and may not work as expected with the OpenTelemetry semantic conventions without customization.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#when-to-use-the-classic-stack-ingestion-components-instead-of-edot",
+      "datasetId": "edot-limitations"
+    },
+    {
+      "id": "migration-managed-log-processing",
+      "kind": "migration-gap",
+      "featureId": "managed-log-processing",
+      "label": "Managed / centralized processing of logs",
+      "verdict": "not-available",
+      "headline": "No curated Elasticsearch ingest pipelines for OTel-native data",
+      "quote": "Elastic doesn't provide curated, centralized Elasticsearch ingest pipelines for OTel-native data. Process logs in the Collector instead, or define your own ingest pipeline.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#when-to-use-the-classic-stack-ingestion-components-instead-of-edot",
+      "datasetId": "edot-limitations",
+      "remedy": "Process OTel data with Collector processors and filelogreceiver operators instead.",
+      "remedyQuote": "To process your OTel data, for example to parse logs data, route data to data streams, and so on, use [Collector processors](https://opentelemetry.io/docs/collector/configuration/#processors), [`filelogreceiver` operators](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/pkg/stanza/docs/operators/README.md#what-operators-are-available) and other OTel-native processing capabilities.",
+      "remedySourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#centralized-parsing-and-processing-of-data",
+      "remedyDatasetId": "edot-limitations"
+    },
+    {
+      "id": "migration-tbs",
+      "kind": "migration-gap",
+      "featureId": "tail-based-sampling",
+      "label": "Tail-based sampling (TBS)",
+      "verdict": "not-supported",
+      "headline": "No managed TBS in Elastic OpenTelemetry",
+      "quote": "If you need the full tail-based sampling capabilities of APM Server, use APM Server with an Elasticsearch output. Elastic OpenTelemetry does not provide managed TBS. You can run TBS in a self-managed Elastic Agent or any contrib OTel Collector and ingest the sampled traces into Elastic with some caveats.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#when-to-use-the-classic-stack-ingestion-components-instead-of-edot",
+      "datasetId": "edot-limitations",
+      "caveats": [
+        {
+          "quote": "**Metric accuracy**",
+          "detail": "Counts and rate metrics reflect sampled data, not total volumes. The Elastic APM backend cannot extrapolate totals because the `tailsamplingprocessor` does not send sampling probability metadata.",
+          "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#tail-based-sampling-tbs"
+        },
+        {
+          "quote": "**Service map coverage**",
+          "detail": "Some edges between services may be missing.",
+          "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#tail-based-sampling-tbs"
+        },
+        {
+          "quote": "**Impact on SLOs and alerts**",
+          "detail": "SLOs and alerts that depend on request volume can be biased by sampling.",
+          "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#tail-based-sampling-tbs"
+        },
+        {
+          "quote": "**Operational complexity**",
+          "detail": "You are responsible for reliability, scaling, and tuning.",
+          "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#tail-based-sampling-tbs"
+        }
+      ]
+    },
+    {
+      "id": "migration-tbs-managed-cloud",
+      "kind": "migration-gap",
+      "featureId": "tbs-managed-cloud",
+      "label": "TBS managed / hosted in Elastic Cloud",
+      "verdict": "incompatible",
+      "headline": "Managed/hosted TBS in Elastic Cloud is Incompatible",
+      "quote": "TBS managed / hosted in Elastic Cloud",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/features",
+      "datasetId": "edot-features",
+      "extra": "The features table marks this row Compatibility = Incompatible, Support level = Not supported."
+    },
+    {
+      "id": "migration-runtime-metrics-viz",
+      "kind": "migration-gap",
+      "featureId": "runtime-metrics",
+      "label": "Runtime metrics visualization",
+      "verdict": "compatible-unsupported",
+      "headline": "Runtime metrics ingest, but the Service → Metrics tab is limited",
+      "quote": "There are limitations with visualizing language-specific runtime metrics in the corresponding **Service → Metrics** tab. Runtime metrics can be ingested and used to create custom dashboards. As a temporary workaround, you can create dashboards from the runtime metrics and attach them as custom dashboards to corresponding services.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#limitations-with-apm",
+      "datasetId": "edot-limitations"
+    },
+    {
+      "id": "migration-user-ingest-pipelines",
+      "kind": "migration-gap",
+      "featureId": "user-ingest-pipelines",
+      "label": "User-defined Elasticsearch ingest pipelines",
+      "verdict": "not-supported",
+      "headline": "Your own ingest pipelines are Compatible but Not supported, and hit dotted field names",
+      "quote": "User-defined Elasticsearch ingest pipelines²",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/features",
+      "datasetId": "edot-features",
+      "remedy": "Use the dot expander processor, or set field_access_pattern to flexible in the pipeline definition.",
+      "remedyQuote": "Transform the dotted field into an object using the [dot expander processor](https://www.elastic.co/docs/reference/ingest-processor/dot-expand-processor) before accessing it.",
+      "remedySourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#centralized-parsing-and-processing-of-data",
+      "remedyDatasetId": "edot-limitations"
+    },
+    {
+      "id": "migration-central-mgmt-collectors",
+      "kind": "migration-gap",
+      "featureId": "central-mgmt-collectors",
+      "label": "Central management of OTel collectors",
+      "verdict": "incompatible",
+      "headline": "Central management of OTel collectors is Incompatible",
+      "quote": "Central management of OTel collectors",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/features",
+      "datasetId": "edot-features",
+      "extra": "The features table marks this row Compatibility = Incompatible, Support level = Not supported."
+    },
+    {
+      "id": "migration-central-mgmt-sdks",
+      "kind": "migration-gap",
+      "featureId": "central-mgmt-sdks",
+      "label": "Central management of OTel SDKs",
+      "verdict": "supported",
+      "headline": "Central management of OTel SDKs is Supported",
+      "quote": "Central management of OTel SDKs",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/features",
+      "datasetId": "edot-features",
+      "extra": "The features table marks this row Compatibility = Compatible, Support level = Supported. Note the per-SDK feature matrix shows Central configuration as tech preview in every SDK that has it."
+    },
+    {
+      "id": "migration-host-network-metrics",
+      "kind": "migration-gap",
+      "featureId": "host-network-metrics",
+      "label": "Host network metrics panels",
+      "verdict": "not-available",
+      "headline": "host.network.* metrics are not available from OpenTelemetry",
+      "quote": "Due to an contrib limitation, `host.network.*` metrics are not available from OpenTelemetry.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#infrastructure-and-host-metrics",
+      "datasetId": "edot-limitations"
+    },
+
+    {
+      "id": "classic-agent-integration-versions",
+      "kind": "classic-agent",
+      "applies": "Classic Elastic APM agents against the APM integration version",
+      "quote": "The chart below outlines the compatibility between different versions of Elastic APM agents and extensions with the APM integration.",
+      "sourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility",
+      "datasetId": "apm-agents",
+      "readsFrom": { "datasetId": "apm-agents", "sectionHeading": "All APM agents (combined view)" }
+    },
+    {
+      "id": "classic-java-agent-known-issue",
+      "kind": "hazard",
+      "trigger": { "classicAgent": "Java agent", "agentVersionBelow": "1.43.0" },
+      "verdict": "compatible-unsupported",
+      "headline": "Java agent < 1.43.0 is not fully compatible with APM Server >= 8.11.0",
+      "quote": "Note: Java agent < 1.43.0 not fully compatible with APM Server >= 8.11.0. For more information, check [Elastic APM known issues](https://www.elastic.co/docs/release-notes/apm/known-issues).",
+      "sourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility#_java_agent",
+      "datasetId": "apm-agents"
+    },
+
+    {
+      "id": "feature-matrix-lookup",
+      "kind": "feature-availability",
+      "applies": "Per-language EDOT SDK feature availability",
+      "quote": "This table provides an overview of the features available in the EDOT SDKs across different programming languages.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks#feature-overview",
+      "datasetId": "edot-sdk-features",
+      "readsFrom": { "datasetId": "edot-sdk-features", "sectionHeading": "Feature overview" }
+    },
+    {
+      "id": "feature-inferred-spans-edot-only",
+      "kind": "feature-note",
+      "featureMatch": "Inferred spans",
+      "quote": "Available in Elastic OpenTelemetry only. Generates spans from profiling data without manual instrumentation, closing visibility gaps that auto-instrumentation does not cover.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/edot-vs-upstream#edot-sdks",
+      "datasetId": "edot-vs-upstream"
+    },
+    {
+      "id": "feature-profiling-java-only",
+      "kind": "feature-note",
+      "featureMatch": "Profiling integration",
+      "quote": "Available in EDOT Java only. Correlates traces with continuous profiling data for deeper performance analysis.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/edot-vs-upstream#edot-sdks",
+      "datasetId": "edot-vs-upstream"
+    },
+    {
+      "id": "feature-crash-reporting-edot-only",
+      "kind": "feature-note",
+      "featureMatch": "Crash reporting",
+      "quote": "Available in Elastic OpenTelemetry only. Captures native crash data on mobile platforms for post-mortem analysis.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/edot-vs-upstream#edot-sdks",
+      "datasetId": "edot-vs-upstream"
+    },
+    {
+      "id": "feature-central-config-edot-only",
+      "kind": "feature-note",
+      "featureMatch": "Central configuration",
+      "quote": "Available in Elastic OpenTelemetry only. Manages SDK settings from Kibana through the Elastic Agent using [OpAMP](https://www.elastic.co/docs/reference/opentelemetry/central-configuration). Most SDKs apply configuration changes dynamically, without restarting or redeploying applications.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/edot-vs-upstream#edot-sdks",
+      "datasetId": "edot-vs-upstream"
+    },
+    {
+      "id": "feature-runtime-metrics-footnote",
+      "kind": "feature-note",
+      "featureMatch": "Runtime metrics",
+      "quote": "¹ Runtime metrics can be ingested but visualization in the APM Service > Metrics tab is currently limited.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks#feature-overview",
+      "datasetId": "edot-sdk-features"
+    },
+    {
+      "id": "feature-tls-ca-signed-only",
+      "kind": "feature-note",
+      "featureMatch": "TLS for OTLP endpoint",
+      "quote": "² CA-signed certificates only",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks#feature-overview",
+      "datasetId": "edot-sdk-features"
+    },
+    {
+      "id": "feature-opamp-tls-dotnet-caveat",
+      "kind": "feature-note",
+      "featureMatch": "TLS for OpAMP endpoint",
+      "quote": "³ Custom certificate verification and mTLS are not available yet.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks#feature-overview",
+      "datasetId": "edot-sdk-features"
+    },
+
+    {
+      "id": "other-sdk-distributions",
+      "kind": "advisory",
+      "trigger": { "usesNonEdotSdk": true },
+      "verdict": "compatible-unsupported",
+      "headline": "Non-EDOT OTel SDK distributions are Compatible but not officially supported",
+      "quote": "OTel SDK distributions other than the ones listed above are technically compatible (Compatible) with Elastic but are not officially supported by Elastic (Supported).",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/sdks#other-sdk-distributions",
+      "datasetId": "edot-sdks-compat"
+    },
+    {
+      "id": "other-collector-distributions",
+      "kind": "advisory",
+      "trigger": { "usesNonEdotCollector": true },
+      "verdict": "compatible-unsupported",
+      "headline": "Non-Elastic Collector distributions are Compatible but not officially supported",
+      "quote": "Non-Elastic OpenTelemetry distributions of the OTel Collector, such as custom Collector builds, contrib Collector distributions, and so on aren't officially supported through Elastic but are technically compatible (Compatible) if they contain the [required OTel Collector components](https://www.elastic.co/docs/reference/edot-collector/custom-collector) and are configured like Elastic Agent.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#other-collector-distributions",
+      "datasetId": "edot-collectors"
+    },
+    {
+      "id": "aws-lambda-use-adot",
+      "kind": "advisory",
+      "trigger": { "platform": ["aws-lambda"] },
+      "verdict": "compatible-unsupported",
+      "headline": "On AWS Lambda, use ADOT at the edge — Elastic does not support ADOT components",
+      "quote": "Use the [AWS Distro for OpenTelemetry (ADOT)](https://aws-otel.github.io/docs/getting-started/lambda) [at the edge](https://www.elastic.co/docs/reference/opentelemetry/architecture#understanding-edge-deployment) to collect and send telemetry data from AWS Lambda services. For support of ADOT components, contact AWS. Tip: For AWS Lambda workloads that generate telemetry outside the function runtime, such as CloudWatch logs, use the [Elastic Cloud Forwarder](https://www.elastic.co/docs/reference/opentelemetry/edot-cloud-forwarder/aws) instead.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#platform-specific-recommendations",
+      "datasetId": "edot-collectors"
+    },
+    {
+      "id": "openshift-use-redhat-build",
+      "kind": "advisory",
+      "trigger": { "platform": ["openshift"] },
+      "verdict": "supported",
+      "headline": "Elastic Agent is supported on OpenShift; Red Hat's build is recommended at the edge",
+      "quote": "Elastic Agent is supported for use on OpenShift. Refer to the compatibility [Support matrix](https://www.elastic.co/support/matrix#matrix_kubernetes) for details. We also recommend using the [Red Hat build of OpenTelemetry](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/red_hat_build_of_opentelemetry/index) [at the edge](https://www.elastic.co/docs/reference/opentelemetry/architecture#understanding-edge-deployment) to collect and send telemetry data. For support of OpenTelemetry components in OpenShift, contact Red Hat.",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#platform-specific-recommendations",
+      "datasetId": "edot-collectors"
+    }
+  ],
+
+  "undocumented": {
+    "note": "Combinations the engine deliberately refuses to judge, with the reason. Surfaced to the user as 'not documented' rather than a verdict.",
+    "cases": [
+      {
+        "id": "edot-browser-vs-agent-band",
+        "headline": "EDOT Browser is not listed in the SDK-vs-Agent compatibility table",
+        "detail": "The 'This applies to all EDOT SDKs' list on the SDKs compatibility page names .NET, Java, Node.js, PHP, Python, Android and iOS — not Browser. The EDOT SDKs overview page does list Browser as an available SDK. Elastic does not state which Elastic Agent versions EDOT Browser requires.",
+        "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/sdks"
+      },
+      {
+        "id": "android-version-support",
+        "headline": "No Android version or API level compatibility is published",
+        "detail": "The /edot-sdks/android/supported-technologies page returned an empty body when scraped, and neither the Android index nor the automatic-instrumentation page states a supported Android version, API level, or Elastic Stack version.",
+        "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android"
+      },
+      {
+        "id": "java-version-tables",
+        "headline": "EDOT Java publishes no version tables of its own",
+        "detail": "EDOT Java delegates to upstream OpenTelemetry Java Instrumentation: 'The EDOT Java agent supports Java Virtual Machine (OpenJDK, OpenJ9) versions 8+' and 'supports all the libraries and frameworks documented by the OpenTelemetry Java agent'. Specific library version ranges live in the upstream repo, not in Elastic's docs.",
+        "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/java/supported-technologies"
+      },
+      {
+        "id": "histogram-temporality-apm-server-intake",
+        "headline": "Histogram temporality on the APM Server OTel intake path is not documented",
+        "detail": "Elastic documents metric temporality for two paths only: the Elastic Cloud Managed OTLP Endpoint (delta and cumulative both supported) and the Collector Elasticsearch exporter (delta only; cumulative histograms are dropped). It states nothing about temporality handling for APM Server's OpenTelemetry intake — a path that is itself Not supported for EDOT SDKs — so no verdict is drawn.",
+        "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#histogram-and-counter-temporality"
+      },
+      {
+        "id": "collector-8x-vs-stack",
+        "headline": "Only Elastic Agent 9.x is given a compatibility table",
+        "detail": "The Collectors page publishes a compatibility/support table for Elastic Agent 9.x only. It states no verdict for Elastic Agent 8.x against any Stack version, so the engine will not judge an 8.x Agent.",
+        "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#collector-9"
+      },
+      {
+        "id": "classic-agent-vs-stack-version",
+        "headline": "Classic APM agents are versioned against the APM integration, not the Stack",
+        "detail": "The APM agent compatibility page maps agent versions to 'APM integration version' (for example, Java agent 1.x requires integration >= 6.5). It does not state Elastic Stack version compatibility directly, so the engine reports the integration floor rather than a Stack verdict.",
+        "sourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility"
+      },
+      {
+        "id": "synthetics-vs-edot",
+        "headline": "Synthetics support is stated independently of EDOT",
+        "detail": "The Synthetics support matrix states GA support versions per component and requires a direct Elasticsearch connection. It makes no statement about EDOT or OTLP ingestion, so no cross-verdict is produced.",
+        "sourceUrl": "https://www.elastic.co/docs/solutions/observability/synthetics/support-matrix"
+      }
+    ]
+  }
+}

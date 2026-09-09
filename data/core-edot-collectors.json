@@ -1,0 +1,83 @@
+{
+  "id": "edot-collectors",
+  "title": "Compatibility and support for OTel Collectors",
+  "group": "EDOT compatibility",
+  "sources": [
+    { "title": "Collectors", "url": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors" }
+  ],
+  "intro": "The following table provides an overview of compatibility and support of Elastic Agent versions with Elastic Stack (ELK) versions.",
+  "introSourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors",
+  "sections": [
+    {
+      "heading": "Elastic Agent 9.x vs Elastic Stack (ELK) version",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#collector-9",
+      "type": "table",
+      "columns": ["ELK stack version", "**ELK < 8.16**", "**ELK 8.16 - 8.17**", "**ELK 8.18 - 8.19**", "**ELK 9.0 and later**"],
+      "rows": [
+        ["**Compatibility**", "Incompatible", "Compatible", "Compatible", "Compatible"],
+        ["**Level of support**", "Not supported", "Not supported", "Supported", "Supported"]
+      ],
+      "notes": [
+        "Note: If you're on Elastic Stack 8.18 or 8.19 and require Elastic support, use Elastic Agent version 9.x, as this combination is officially [Supported](https://www.elastic.co/docs/reference/opentelemetry/compatibility/nomenclature).",
+        "Configuration compatibility: If you upgrade to Elastic Agent 9.x while running Elastic Stack 8.18 or 8.19, continue using the configuration recommended for your Stack version, not the Elastic Agent 9.x default configuration. This ensures full compatibility with Kibana Observability applications. ([#configuration-compatibility](https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#configuration-compatibility))"
+      ]
+    },
+    {
+      "heading": "Operating systems compatible with Elastic Agent 9.x",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#os-collector-9",
+      "type": "table",
+      "columns": ["OS Type", "Architecture", "Distribution or version", "Level of support"],
+      "rows": [
+        ["Linux", "amd64", "Ubuntu 24.04, 22.04, 20.04", "Supported"],
+        ["Linux", "arm64", "Ubuntu 24.04, 22.04, 20.04", "Supported"],
+        ["Linux", "amd64", "RHEL 8", "Supported"],
+        ["macOS", "amd64", "macOS 10.x and higher", "Not supported"],
+        ["macOS", "arm64", "macOS 10.x and higher", "Not supported"],
+        ["Windows", "amd64", "Server 2022, 2022 Core, 2019, 2019 Core, 2016, 2016 Core", "Not supported"]
+      ],
+      "notes": [
+        "The source page introduces this table with: \"These operating systems and distributions are [compatible](https://www.elastic.co/docs/reference/opentelemetry/compatibility/nomenclature) with Elastic Agent 9.x\"."
+      ]
+    },
+    {
+      "heading": "Kubernetes distributions compatible with Elastic Agent 9.x",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#os-collector-9",
+      "type": "table",
+      "columns": ["Kubernetes", "Architecture", "Version"],
+      "rows": [
+        ["Kubernetes", "amd64, arm64", "1.33.0, 1.32.0, 1.31.0, 1.30.2, 1.29.4, 1.28.9, 1.27.16"]
+      ],
+      "notes": [
+        "Elastic Agent is compatible with GKE, EKS, and AKS. Refer to [Limitations on managed Kubernetes environments](https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#limitations-on-managed-kubernetes-environments) for more information."
+      ]
+    },
+    {
+      "heading": "Platform-specific recommendations",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#platform-specific-recommendations",
+      "type": "table",
+      "columns": ["Platform", "Recommendation"],
+      "rows": [
+        ["Red Hat OpenShift", "Elastic Agent is supported for use on OpenShift. Refer to the compatibility [Support matrix](https://www.elastic.co/support/matrix#matrix_kubernetes) for details. We also recommend using the [Red Hat build of OpenTelemetry](https://docs.redhat.com/en/documentation/openshift_container_platform/4.20/html/red_hat_build_of_opentelemetry/index) [at the edge](https://www.elastic.co/docs/reference/opentelemetry/architecture#understanding-edge-deployment) to collect and send telemetry data. For support of OpenTelemetry components in OpenShift, contact Red Hat."],
+        ["AWS Lambda", "Use the [AWS Distro for OpenTelemetry (ADOT)](https://aws-otel.github.io/docs/getting-started/lambda) [at the edge](https://www.elastic.co/docs/reference/opentelemetry/architecture#understanding-edge-deployment) to collect and send telemetry data from AWS Lambda services. For support of ADOT components, contact AWS. Tip: For AWS Lambda workloads that generate telemetry outside the function runtime, such as CloudWatch logs, use the [Elastic Cloud Forwarder](https://www.elastic.co/docs/reference/opentelemetry/edot-cloud-forwarder/aws) instead."]
+      ],
+      "notes": [
+        "For certain platforms, use platform-native OpenTelemetry distributions [at the edge](https://www.elastic.co/docs/reference/opentelemetry/architecture#understanding-edge-deployment), as they provide the best native experience.",
+        "Important: Elastic does not provide support for distributions other than the Elastic OpenTelemetry."
+      ]
+    },
+    {
+      "heading": "Elastic Agent components",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#agent-components",
+      "type": "prose",
+      "text": "For information on the compatibility of each Collector component, refer to the [full list of Core and Extended components](https://www.elastic.co/docs/reference/edot-collector/components).",
+      "notes": []
+    },
+    {
+      "heading": "Other Collector distributions",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/collectors#other-collector-distributions",
+      "type": "prose",
+      "text": "Non-Elastic OpenTelemetry distributions of the OTel Collector, such as custom Collector builds, contrib Collector distributions, and so on aren't officially supported through Elastic but are technically compatible (Compatible) if they contain the [required OTel Collector components](https://www.elastic.co/docs/reference/edot-collector/custom-collector) and are configured like Elastic Agent.\n\nYou can retrieve required components and configuration options from the [example configuration files](https://github.com/elastic/elastic-agent/tree/v%3CCOLLECTOR_VERSION%3E/internal/pkg/otel/samples/linux) for Elastic Agent.\n\nFor a comparison between Elastic OpenTelemetry and contrib OpenTelemetry components, refer to [Elastic OpenTelemetry compared to upstream](https://www.elastic.co/docs/reference/opentelemetry/compatibility/edot-vs-upstream).",
+      "notes": []
+    }
+  ]
+}

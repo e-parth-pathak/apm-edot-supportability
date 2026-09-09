@@ -1,0 +1,106 @@
+{
+  "id": "edot-limitations",
+  "title": "Limitations of Elastic OpenTelemetry",
+  "group": "EDOT compatibility",
+  "sources": [
+    { "title": "Limitations", "url": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations" }
+  ],
+  "intro": "While Elastic OpenTelemetry and OTel-native data collection already covers most of the core Observability use cases, the following limitations apply compared to data collection with classic Elastic data ingestion components.",
+  "introSourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations",
+  "sections": [
+    {
+      "heading": "When to use classic Elastic Stack ingestion components instead of Elastic OpenTelemetry",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#when-to-use-the-classic-stack-ingestion-components-instead-of-edot",
+      "type": "table",
+      "columns": ["Scenario", "Guidance"],
+      "rows": [
+        ["Real user monitoring (RUM)", "[EDOT Browser](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/browser) provides OTel-native browser instrumentation. However, since it is in technical preview, continue using the classic Elastic APM [browser agent](https://www.elastic.co/docs/reference/apm/agents/rum-js) for production RUM."],
+        ["Universal profiling", "This capability is currently only supported in the classic stack."],
+        ["Existing integrations and dashboards", "Many prebuilt Elastic integrations and dashboards are designed for ECS-formatted data and may not work as expected with the OpenTelemetry semantic conventions without customization."],
+        ["Managed processing of logs", "Elastic doesn't provide curated, centralized Elasticsearch ingest pipelines for OTel-native data. Process logs in the Collector instead, or define your own ingest pipeline."],
+        ["Tail-based sampling (TBS)", "If you need the full tail-based sampling capabilities of APM Server, use APM Server with an Elasticsearch output. Elastic OpenTelemetry does not provide managed TBS. You can run TBS in a self-managed Elastic Agent or any contrib OTel Collector and ingest the sampled traces into Elastic with some caveats."]
+      ],
+      "notes": [
+        "Refer to [Elastic OpenTelemetry data streams compared to classic APM](https://www.elastic.co/docs/reference/opentelemetry/compatibility/data-streams) for an overview of how these ingestion paths differ."
+      ]
+    },
+    {
+      "heading": "Infrastructure and host metrics limitations",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#infrastructure-and-host-metrics",
+      "type": "table",
+      "columns": ["Limitation", "Explanation"],
+      "rows": [
+        ["Host network panels do not display data in some Elastic Observability UIs.", "Due to an contrib limitation, `host.network.*` metrics are not available from OpenTelemetry."],
+        ["Process state is unavailable in OpenTelemetry host metrics.", "The `process.state` metric is not present and is assigned a dummy value of \"Unknown\" in the State column of the host processes table."],
+        ["Host OS version and operating system may show as \"N/A\".", "Although the Elasticsearch exporter processes resource attributes, it may not populate these values."],
+        ["Normalized Load data is missing unless the CPU scraper is enabled.", "The `system.load.cores` metric is required for the Normalized Load column in the Hosts table and the Normalized Load visualization in the host detailed view."],
+        ["MacOS collectors do not support CPU and disk metrics.", "The `hostmetrics receiver` does not collect these metrics on macOS, leaving related fields empty."],
+        ["Permission issues may cause error logs for process metrics", "The `hostmetrics receiver` logs errors if it cannot access certain process information due to insufficient permissions."]
+      ],
+      "notes": [
+        "When collecting host metrics through a distribution of the OTel Collector other than Elastic OpenTelemetry, make sure to turn on required metrics that are otherwise turned off by default. Use the Elastic Agent [sample config](https://www.elastic.co/docs/reference/edot-collector/config/default-config-standalone) for the `hostmetrics` receiver as reference."
+      ]
+    },
+    {
+      "heading": "Metrics data ingestion — histogram and counter temporality",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#histogram-and-counter-temporality",
+      "type": "table",
+      "columns": ["Ingestion path", "Temporality support"],
+      "rows": [
+        ["[Elastic Cloud Managed OTLP Endpoint](https://www.elastic.co/docs/reference/opentelemetry/managed-inputs/managed-otlp-endpoint)", "Both [`delta` and `cumulative` temporality](https://opentelemetry.io/docs/specs/otel/metrics/data-model/#temporality) are supported for [`Histogram`](https://opentelemetry.io/docs/specs/otel/metrics/data-model/#histogram) and counter metrics. Cumulative temporality for histograms additionally requires the `xpack.otel_data.histogram_field_type` cluster setting to be set to `exponential_histogram`, which is the default."],
+        ["Collector Elasticsearch exporter", "The collector Elasticsearch exporter does not yet support `cumulative` temporality for histograms and counters. Ingestion of OpenTelemetry metrics with the type `Histogram` is only supported with `delta` temporality. Histograms with `cumulative` temporality are dropped before being ingested into Elasticsearch."]
+      ],
+      "notes": [
+        "Make sure to export histogram metrics with `delta` temporality or use the [`cumulativetodelta processor`](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/cumulativetodeltaprocessor) as a workaround to convert the temporality for histogram metrics when using the collector Elasticsearch exporter.",
+        "Exemplars: Exemplars are discarded when ingesting metrics. Support for exemplars is planned for a future release. ([#exemplars](https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#exemplars))"
+      ]
+    },
+    {
+      "heading": "Centralized parsing and processing of data",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#centralized-parsing-and-processing-of-data",
+      "type": "prose",
+      "text": "Elastic doesn't provide managed, centralized processing of OTel-native data. OTel-native data streams don't come with curated [Elasticsearch ingest pipelines](https://www.elastic.co/docs/manage-data/ingest/transform-enrich/ingest-pipelines) that parse and enrich your data for you.\n\nTo process your OTel data, for example to parse logs data, route data to data streams, and so on, use [Collector processors](https://opentelemetry.io/docs/collector/configuration/#processors), [`filelogreceiver` operators](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/pkg/stanza/docs/operators/README.md#what-operators-are-available) and other OTel-native processing capabilities.\n\nIngest pipelines and dotted field names: You can define your own Elasticsearch ingest pipeline for OTel data streams, but the OTel-native data format in Elasticsearch contains dotted field names. With the default `classic` [field access pattern](https://www.elastic.co/docs/manage-data/ingest/transform-enrich/ingest-pipelines#access-source-pattern), processors can't access a field that has a dot in its name. Workarounds: (1) Transform the dotted field into an object using the [dot expander processor](https://www.elastic.co/docs/reference/ingest-processor/dot-expand-processor) before accessing it. (2) Set `field_access_pattern` to [`flexible`](https://www.elastic.co/docs/manage-data/ingest/transform-enrich/ingest-pipelines#access-source-pattern-flexible) in the pipeline definition.",
+      "notes": []
+    },
+    {
+      "heading": "Limitations on managed Kubernetes environments",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#limitations-on-managed-kubernetes-environments",
+      "type": "prose",
+      "text": "Due to limitations with permissions on managed Kubernetes environments, such as GKE Autopilot or AWS Fargate, the default configurations and onboarding flows for Elastic OpenTelemetry don't fully work in those environments. This might result in decreased collection of data and certain observability views not showing that data.",
+      "notes": []
+    },
+    {
+      "heading": "Limitations with APM",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#limitations-with-apm",
+      "type": "table",
+      "columns": ["Limitation", "Detail"],
+      "rows": [
+        ["Allowed characters in service names", "The `service.name` must conform to this regular expression: `^[a-zA-Z0-9 _-]+$`. Your service name must only contain characters from the ASCII alphabet, numbers, dashes, underscores, and spaces."],
+        ["Runtime metrics", "There are limitations with visualizing language-specific runtime metrics in the corresponding **Service → Metrics** tab. Runtime metrics can be ingested and used to create custom dashboards. As a temporary workaround, you can create dashboards from the runtime metrics and attach them as custom dashboards to corresponding services."]
+      ],
+      "notes": []
+    },
+    {
+      "heading": "Tail-based sampling (TBS) caveats",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#tail-based-sampling-tbs",
+      "type": "table",
+      "columns": ["Caveat", "Detail"],
+      "rows": [
+        ["**Metric accuracy**", "Counts and rate metrics reflect sampled data, not total volumes. The Elastic APM backend cannot extrapolate totals because the `tailsamplingprocessor` does not send sampling probability metadata."],
+        ["**Service map coverage**", "Some edges between services may be missing."],
+        ["**Impact on SLOs and alerts**", "SLOs and alerts that depend on request volume can be biased by sampling."],
+        ["**Operational complexity**", "You are responsible for reliability, scaling, and tuning."]
+      ],
+      "notes": [
+        "If you need the full tail-based sampling capabilities of APM Server, use APM Server with an Elasticsearch output. Elastic OpenTelemetry does not provide a managed TBS service."
+      ]
+    },
+    {
+      "heading": "Additional information",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/limitations#additional-information",
+      "type": "prose",
+      "text": "For backwards compatibility reasons, Kubernetes metrics and host metrics are ingested twice, once in OTel format and once in Elastic Common Schema (ECS) format.",
+      "notes": []
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "id": "apm-agents",
+  "title": "APM agent compatibility",
+  "group": "Classic APM",
+  "sources": [
+    { "title": "APM agent compatibility", "url": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility" }
+  ],
+  "intro": "The chart below outlines the compatibility between different versions of Elastic APM agents and extensions with the APM integration.",
+  "introSourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility",
+  "sections": [
+    {
+      "heading": "All APM agents (combined view)",
+      "sourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility",
+      "type": "table",
+      "columns": ["Agent / extension", "APM agent version", "APM integration version"],
+      "rows": [
+        ["APM AWS Lambda extension", "`1.x`", "≥ `8.2`"],
+        ["Go agent", "`1.x`", "≥ `6.5`"],
+        ["Go agent", "`2.x`", "≥ `6.5`"],
+        ["iOS agent", "`1.x`", "≥ `8.12`"],
+        ["Java agent", "`1.x`", "≥ `6.5`"],
+        [".NET agent", "`1.x`", "≥ `6.5`"],
+        ["Node.js agent", "`3.x`", "≥ `6.6`"],
+        ["PHP agent", "`1.x`", "≥ `7.0`"],
+        ["Python agent", "`6.x`", "≥ `6.6`"],
+        ["Ruby agent", "`3.x`", "≥ `6.5`"],
+        ["Ruby agent", "`4.x`", "≥ `6.5`"],
+        ["JavaScript RUM agent", "`4.x`", "≥ `6.5`"],
+        ["JavaScript RUM agent", "`5.x`", "≥ `7.0`"]
+      ],
+      "notes": [
+        "This table is a combined rendering of the per-agent tables on the source page. Each individual agent has its own section on the source page, linked below."
+      ]
+    },
+    {
+      "heading": "APM AWS Lambda extension",
+      "sourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility#_apm_aws_lambda_extension",
+      "type": "table",
+      "columns": ["APM agent version", "APM integration version"],
+      "rows": [["`1.x`", "≥ `8.2`"]],
+      "notes": []
+    },
+    {
+      "heading": "Go agent",
+      "sourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility#_go_agent",
+      "type": "table",
+      "columns": ["APM agent version", "APM integration version"],
+      "rows": [["`1.x`", "≥ `6.5`"], ["`2.x`", "≥ `6.5`"]],
+      "notes": []
+    },
+    {
+      "heading": "iOS agent",
+      "sourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility#_ios_agent",
+      "type": "table",
+      "columns": ["APM agent version", "APM integration version"],
+      "rows": [["`1.x`", "≥ `8.12`"]],
+      "notes": []
+    },
+    {
+      "heading": "Java agent",
+      "sourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility#_java_agent",
+      "type": "table",
+      "columns": ["APM agent version", "APM integration version"],
+      "rows": [["`1.x`", "≥ `6.5`"]],
+      "notes": [
+        "Note: Java agent < 1.43.0 not fully compatible with APM Server >= 8.11.0. For more information, check [Elastic APM known issues](https://www.elastic.co/docs/release-notes/apm/known-issues)."
+      ]
+    },
+    {
+      "heading": ".NET agent",
+      "sourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility#_net_agent",
+      "type": "table",
+      "columns": ["APM agent version", "APM integration version"],
+      "rows": [["`1.x`", "≥ `6.5`"]],
+      "notes": []
+    },
+    {
+      "heading": "Node.js agent",
+      "sourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility#_node_js_agent",
+      "type": "table",
+      "columns": ["APM agent version", "APM integration version"],
+      "rows": [["`3.x`", "≥ `6.6`"]],
+      "notes": []
+    },
+    {
+      "heading": "PHP agent",
+      "sourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility#_php_agent",
+      "type": "table",
+      "columns": ["APM agent version", "APM integration version"],
+      "rows": [["`1.x`", "≥ `7.0`"]],
+      "notes": []
+    },
+    {
+      "heading": "Python agent",
+      "sourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility#_python_agent",
+      "type": "table",
+      "columns": ["APM agent version", "APM integration version"],
+      "rows": [["`6.x`", "≥ `6.6`"]],
+      "notes": []
+    },
+    {
+      "heading": "Ruby agent",
+      "sourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility#_ruby_agent",
+      "type": "table",
+      "columns": ["APM agent version", "APM integration version"],
+      "rows": [["`3.x`", "≥ `6.5`"], ["`4.x`", "≥ `6.5`"]],
+      "notes": []
+    },
+    {
+      "heading": "JavaScript RUM agent",
+      "sourceUrl": "https://www.elastic.co/docs/solutions/observability/apm/apm-agent-compatibility#_javascript_rum_agent",
+      "type": "table",
+      "columns": ["APM agent version", "APM integration version"],
+      "rows": [["`4.x`", "≥ `6.5`"], ["`5.x`", "≥ `7.0`"]],
+      "notes": []
+    }
+  ]
+}

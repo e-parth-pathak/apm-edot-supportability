@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: verify + grounding + CSS guard + tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: ['18', '20', '22']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # The app itself has zero dependencies. jsdom is needed only by test-ui.js
+      # and is deliberately not saved to package.json.
+      - name: Install jsdom (dev-only, for the UI tests)
+        run: npm i --no-save jsdom
+
+      - name: Citation & integrity checks
+        run: node verify.js
+
+      - name: Ground every rule quote against the scraped docs
+        run: node check-quotes.js
+
+      - name: CSS cascade guard for hidden views
+        run: node check-css.js
+
+      - name: Build
+        run: node build.js
+
+      - name: Engine unit tests
+        run: node test-engine.js
+
+      - name: UI tests (jsdom)
+        run: node test-ui.js
+
+      - name: Upload built single-file bundle
+        if: matrix.node == '22'
+        uses: actions/upload-artifact@v4
+        with:
+          name: standalone-html
+          path: public/standalone.html
+          if-no-files-found: error

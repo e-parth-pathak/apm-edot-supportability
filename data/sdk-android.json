@@ -1,0 +1,140 @@
+{
+  "id": "android",
+  "language": "Android",
+  "scrapeNote": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/supported-technologies returned no page content (empty body, only the URL echoed back), so the fallback URL https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/automatic-instrumentation was used instead and is the source for the instrumentation sections. Neither the EDOT Android index page nor the automatic-instrumentation page contains any version/compatibility table, supported Android or API level list, or EDOT Collector/Elastic Stack version statement.",
+  "sources": [
+    {"title": "EDOT Android", "url": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android"},
+    {"title": "Automatic instrumentation for Android with EDOT SDK", "url": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/automatic-instrumentation"}
+  ],
+  "sections": [
+    {
+      "heading": "Elastic Distribution of OpenTelemetry Android",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android",
+      "type": "list",
+      "items": [
+        "[Distributed tracing](#distributed-tracing)",
+        "[Session review](#session-review)",
+        "[Alerts and dashboards](#alerts-and-dashboards)"
+      ],
+      "notes": [
+        "The Elastic Distribution of OpenTelemetry Android (EDOT Android) is an APM agent based on [OpenTelemetry](https://opentelemetry.io/). EDOT Android provides built-in tools and configurations to make the [OpenTelemetry SDK](https://opentelemetry.io/docs/languages/java/) work with your Elastic Stack using as little code as possible.",
+        "All the features provided by the [OpenTelemetry SDK](https://github.com/open-telemetry/opentelemetry-java) are available for you to use and are pre-configured by EDOT Android to work properly out of the box. This allows you to fulfill various use cases to better understand your app's performance, such as:"
+      ]
+    },
+    {
+      "heading": "Features",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android#features",
+      "type": "prose",
+      "text": "EDOT Android provides additional features on top of those that come with the [OpenTelemetry SDK](https://opentelemetry.io/docs/languages/java/).",
+      "notes": []
+    },
+    {
+      "heading": "Disk buffering",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android#disk-buffering",
+      "type": "prose",
+      "text": "Your application's telemetry data is stored locally before being sent to the Elastic Stack. Then it's removed either after being successfully exported or to make room for new telemetry data if needed. This minimizes the risk of data loss due to internet connectivity issues.",
+      "notes": []
+    },
+    {
+      "heading": "Crash reporting",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android#crash-reporting",
+      "type": "prose",
+      "text": "Crash events are automatically reported to your Elastic Stack when your application encounters an unhandled exception. These events include [session](#sessions) information to help correlate contextual data and provide a more detailed view of what might have caused the crash.",
+      "notes": [
+        "Refer to [Crash reporting](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/crash-reporting) to enable this instrumentation and deobfuscate stacktraces from R8-optimized builds."
+      ]
+    },
+    {
+      "heading": "Central configuration",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android#central-configuration",
+      "type": "prose",
+      "text": "You can remotely manage how EDOT Android behaves through Kibana. Refer to [Central configuration](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/configuration#central-configuration) for more details.",
+      "notes": []
+    },
+    {
+      "heading": "Real time",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android#real-time",
+      "type": "prose",
+      "text": "For [distributed tracing](#distributed-tracing) to work properly, your application's time should be in sync with the [coordinated universal time](https://en.wikipedia.org/wiki/Coordinated_Universal_Time). This is sometimes an issue for Android applications, as the time provided by the OS is often not accurate enough. EDOT Android aims to synchronize telemetry timestamps with the universal time to ensure a reliable view of event timelines.",
+      "notes": []
+    },
+    {
+      "heading": "Sessions",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android#sessions",
+      "type": "prose",
+      "text": "A session groups telemetry data within a time frame when your application is active by adding a `session.id` attribute to all the spans and logs that come out of your application. This helps limit the volume of data you need to look at when investigating the steps that led to an error within your app. It can also give you insight into the common actions performed on each use.\n\nA session is created when no previous session exists or when the previous one has expired. Sessions expire after 30 minutes of inactivity. If there's constant activity on an app, the session will live up to a maximum of 4 hours.",
+      "notes": []
+    },
+    {
+      "heading": "Dynamic configuration",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android#dynamic-configuration",
+      "type": "prose",
+      "text": "EDOT Android allows you to modify some values after its initialization has finished. Refer to [configuration](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/configuration).",
+      "notes": []
+    },
+    {
+      "heading": "Automatic instrumentation",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android#automatic-instrumentation",
+      "type": "prose",
+      "text": "EDOT Android provides extensions that automatically generate telemetry for common tools and use cases. Refer to [Automatic Instrumentation](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/automatic-instrumentation) for more details.",
+      "notes": []
+    },
+    {
+      "heading": "Automatic instrumentation for Android with EDOT SDK",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/automatic-instrumentation",
+      "type": "prose",
+      "text": "EDOT Android can automatically generate telemetry on your behalf. This allows you to get telemetry data for supported targets without having to write [manual instrumentation](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/manual-instrumentation).",
+      "notes": [
+        "All automatic instrumentations are optional and aren't bundled with the Android agent. You need to install the instrumentations you want to use. Specific targets are supported for automatic instrumentation, each with its own Gradle plugin for installation.",
+        "Tip",
+        "You can also use instrumentations from [OpenTelemetry Android](https://github.com/open-telemetry/opentelemetry-android/tree/main/instrumentation) through the [OTel Android instrumentation adapter](#adapter-for-otel-android-instrumentations)."
+      ]
+    },
+    {
+      "heading": "Supported instrumentations",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/automatic-instrumentation#supported-instrumentations",
+      "type": "prose",
+      "text": "The following automatic instrumentations are supported.",
+      "notes": []
+    },
+    {
+      "heading": "OkHttp",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/automatic-instrumentation#okhttp",
+      "type": "prose",
+      "text": "Creates spans for outgoing HTTP requests that are made using the [OkHttp](https://square.github.io/okhttp/) library. This also includes tools that rely on OkHttp to work, such as [Retrofit](https://square.github.io/retrofit/).",
+      "notes": []
+    },
+    {
+      "heading": "Crash reporting",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/automatic-instrumentation#crash-reporting",
+      "type": "prose",
+      "text": "Reports Android crashes as log events using the OpenTelemetry [Events API](https://opentelemetry.io/docs/specs/otel/logs/event-api/). Each crash event includes [session](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android#sessions) information, exception details, and a stacktrace. These events can be viewed from Kibana's Android dashboard under the \"Crashes\" section.\nTake a look at [visualizing telemetry](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/getting-started#visualize-telemetry) for more information on finding Kibana's Android dashboard.",
+      "notes": []
+    },
+    {
+      "heading": "Adapter for OTel Android instrumentations",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/automatic-instrumentation#adapter-for-otel-android-instrumentations",
+      "type": "prose",
+      "text": "You can use any instrumentation from the OpenTelemetry Android [available instrumentations](https://github.com/open-telemetry/opentelemetry-android/tree/main/instrumentation) through the OTel instrumentation adapter gradle plugin. The adapter is an [extended](https://www.elastic.co/docs/reference/opentelemetry/compatibility/nomenclature#extended-components) component.",
+      "notes": [
+        "After including the adapter in your project, choose an instrumentation from [this list](https://github.com/open-telemetry/opentelemetry-android/tree/main/instrumentation) and follow the installation instructions from its README file."
+      ]
+    },
+    {
+      "heading": "Understanding auto-instrumentation scope",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/automatic-instrumentation#understanding-auto-instrumentation-scope",
+      "type": "list",
+      "items": [
+        "Custom or proprietary frameworks and libraries",
+        "Closed-source components without instrumentation support",
+        "Application-specific business logic"
+      ],
+      "notes": [
+        "Auto-instrumentation automatically captures telemetry for the frameworks and libraries listed on this page. However, it cannot instrument:",
+        "If your application uses technologies not covered by auto-instrumentation, you have two options:",
+        "1. **Native OpenTelemetry support** — Some frameworks and libraries include built-in OpenTelemetry instrumentation provided by the vendor.",
+        "2. **Manual instrumentation** — Use the [OpenTelemetry API](https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/manual-instrumentation) to add custom spans, metrics, and logs for unsupported components."
+      ]
+    }
+  ]
+}

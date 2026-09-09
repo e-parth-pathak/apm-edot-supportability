@@ -1,0 +1,55 @@
+{
+  "id": "edot-data-streams",
+  "title": "Data streams comparison",
+  "group": "EDOT compatibility",
+  "sources": [
+    { "title": "Data streams comparison", "url": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/data-streams" }
+  ],
+  "intro": "Elastic OpenTelemetry stores telemetry data using a storage model optimized for OpenTelemetry signals. When `mapping_mode: otel` is enabled on the Elasticsearch exporter (which is the default setting), Elastic OpenTelemetry writes logs, traces, and metrics to specialized data streams aligned with OpenTelemetry specifications.",
+  "introSourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/data-streams",
+  "sections": [
+    {
+      "heading": "Comparison with classic APM data streams",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/data-streams#comparison-with-classic-apm-data-streams",
+      "type": "table",
+      "columns": ["Feature", "Classic APM (ECS-based)", "Elastic OpenTelemetry (`mapping_mode: otel`)"],
+      "rows": [
+        ["Index mode", "General-purpose data streams (logs, traces, metrics). TSDS is not supported for classic APM.", "LogsDB (logs/traces), TSDS (metrics)"],
+        ["Mapping style", "Nested objects are mapped as structured fields. Some exceptions exist, such as `labels.*` and `numeric_labels.*`, where dots in field names are replaced with underscores. ECS supports multiple field types (keyword, long, double, date, boolean, and so on) as defined in the schema.", "Native OpenTelemetry fields with `passthrough`, preserving types and structure."],
+        ["Attribute handling", "Dynamic mapping. Custom attributes are stored under `labels.*` (strings) or `numeric_labels.*` (numbers); dots in field names are replaced with underscores.", "Dynamic mapping with native types under `attributes.*`, preserving dots in field names."]
+      ],
+      "notes": [
+        "This table highlights key differences between classic APM data streams and Elastic OpenTelemetry with `mapping_mode: otel`."
+      ]
+    },
+    {
+      "heading": "Storage engines",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/data-streams#logs-and-traces-in-logsdb",
+      "type": "table",
+      "columns": ["Signal", "Storage engine", "Benefits"],
+      "rows": [
+        ["Logs and traces", "[LogsDB](https://www.elastic.co/docs/manage-data/data-store/data-streams/logs-data-stream)", "Storage efficiency; Optimized field handling for dynamic fields (for example, `attributes`)"],
+        ["Metrics", "[TSDS](https://www.elastic.co/docs/manage-data/data-store/data-streams/time-series-data-stream-tsds)", "Efficient storage using columnar compression; Fast aggregations; Automatic detection of metric dimensions (no need to manually define `time_series_dimension` in field mappings)"]
+      ],
+      "notes": [
+        "Elastic OpenTelemetry uses Elasticsearch's [Logs data stream (LogsDB)](https://www.elastic.co/docs/manage-data/data-store/data-streams/logs-data-stream) and [Time Series Data Streams (TSDS)](https://www.elastic.co/docs/manage-data/data-store/data-streams/time-series-data-stream-tsds) as storage backends."
+      ]
+    },
+    {
+      "heading": "Query compatibility with classic APM data streams",
+      "sourceUrl": "https://www.elastic.co/docs/reference/opentelemetry/compatibility/data-streams#query-compatibility-with-classic-product.apm-data-streams",
+      "type": "table",
+      "columns": ["Mechanism / limitation", "Detail"],
+      "rows": [
+        ["**`passthrough` fields**", "Make nested OpenTelemetry fields available at the top level so they can be queried. For example, while the service name is stored at `resource.attributes.service.name`, you can query it as `service.name` (the same field name as the one used in the classic APM data stream)."],
+        ["**Field aliases**", "Map fields with different names in ECS and OpenTelemetry semantic conventions to a common query name to make migration easier."],
+        ["Limitation — alias coverage", "Not all ECS fields have aliases. Some integration-specific fields may require query changes."],
+        ["Limitation — custom attributes", "Custom attributes and labels are stored differently."]
+      ],
+      "notes": [
+        "Query compatibility is not complete. These differences may require updates to certain queries or visualizations.",
+        "Refer to [ECS & OpenTelemetry](https://www.elastic.co/docs/reference/ecs/ecs-opentelemetry) for details on the available aliases and field mappings."
+      ]
+    }
+  ]
+}
