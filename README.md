@@ -12,6 +12,14 @@ and every table row links back to the exact page and anchor it came from.** Noth
 inferred, computed, or paraphrased into a compatibility claim. Where the docs state
 something in prose rather than a table, the prose is reproduced as-is.
 
+## Architecture
+
+[`docs/architecture.html`](docs/architecture.html) is the interactive diagram. Open that file in a browser. The picture below is the same diagram.
+
+![APM and EDOT compatibility explorer](docs/architecture.png)
+
+A reader opens the static server, which serves the browse and check UI. Checker inputs, theme, and mode stay in `localStorage`. `engine.js` runs in the page: each finding copies `quote` and `sourceUrl` from `rules.json`, and a combination the docs do not state stays `not-documented`. `build.js` writes `public/data.json` and inlines that bundle into `standalone.html` and `artifact.html`. Refresh parses GitHub markdown, cross-checks those cells against the live Elastic HTML, and stages the tables. It does not write `data/`. `diff-refresh.js` appends added rows only when run with `--apply-additions`. Cell changes and deletions stay for review. In `dev.js`, `verify.js`, `check-quotes.js`, and `check-css.js` skip the build when they fail.
+
 ## Requirements
 
 Node ≥ 18. **No dependencies** — `npm install` isn't needed and does nothing. Everything
@@ -358,6 +366,9 @@ is the honest answer:
 ```
 apm-edot-compatibility-matrix/
 ├── package.json
+├── docs/
+│   ├── architecture.html  interactive architecture diagram
+│   └── architecture.png   still of that diagram, shown above
 ├── dev.js                 verify + grounding + CSS guard + build + serve + watch
 ├── build.js               data/*.json -> public/{data.json,standalone.html,artifact.html}
 ├── server.js              zero-dependency static server + /api/data
