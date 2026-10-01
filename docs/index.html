@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elastic APM · EDOT · Synthetics — Compatibility Matrix</title>
+<meta name="description" content="Architecture of the Elastic APM / EDOT / Synthetics compatibility and support matrix explorer.">
+<style>
+/* Self-contained: GitHub Pages serves this file with no build step.
+   Tokens mirror public/styles.css so the site matches the app. */
+:root {
+  color-scheme: light dark;
+  --bg: #f6f7f9; --bg-elev: #ffffff; --bg-sunken: #eef0f4;
+  --border: #d9dde5; --border-strong: #c3c9d4;
+  --text: #1c1e23; --text-dim: #5b6270; --text-faint: #868d9b;
+  --accent: #0b64dd; --accent-soft: #e6effd;
+  --brand-1: #0b64dd; --brand-2: #00bfb3;
+  --ok-bg: #e2f5ec; --ok-fg: #056b41; --ok-bd: #a9dfc6;
+  --warn-bg: #fdf3dd; --warn-fg: #7a5310; --warn-bd: #f0dba6;
+  --code-bg: #eef0f4;
+  --shadow: 0 1px 2px rgba(16,22,38,.06), 0 6px 20px rgba(16,22,38,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1116; --bg-elev: #161a21; --bg-sunken: #1c212a;
+    --border: #2a313d; --border-strong: #3a424f;
+    --text: #e6e9ef; --text-dim: #a3abb9; --text-faint: #7c8595;
+    --accent: #63a4ff; --accent-soft: #16273f;
+    --brand-1: #63a4ff; --brand-2: #00bfb3;
+    --ok-bg: #102a20; --ok-fg: #6ddaa5; --ok-bd: #1f4a37;
+    --warn-bg: #2d2413; --warn-fg: #f0c569; --warn-bd: #4d3d1a;
+    --code-bg: #1d222b;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .88em; background: var(--code-bg); border-radius: 4px; padding: .1em .35em;
+}
+.wrap { max-width: 900px; margin: 0 auto; padding: 48px 22px 80px; }
+header { display: flex; align-items: center; gap: 13px; margin-bottom: 8px; }
+.mark {
+  width: 34px; height: 34px; border-radius: 10px; flex: none;
+  background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+}
+h1 { margin: 0; font-size: 23px; letter-spacing: -.02em; }
+.sub { margin: 0 0 30px; color: var(--text-dim); font-size: 14.5px; max-width: 72ch; }
+h2 { font-size: 17px; margin: 36px 0 10px; letter-spacing: -.01em; }
+p { max-width: 76ch; }
+
+.card {
+  display: block; background: var(--bg-elev); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px 22px; box-shadow: var(--shadow);
+  text-decoration: none; color: inherit; margin-bottom: 14px;
+}
+.card:hover { border-color: var(--border-strong); }
+.card h3 { margin: 0 0 5px; font-size: 15.5px; color: var(--accent); }
+.card p { margin: 0; font-size: 13.5px; color: var(--text-dim); }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 11px; margin: 26px 0; }
+.stat { background: var(--bg-sunken); border-radius: 10px; padding: 13px 15px; }
+.stat b { display: block; font-size: 21px; font-weight: 600; letter-spacing: -.02em; }
+.stat span { font-size: 11.5px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .06em; }
+
+.note {
+  background: var(--warn-bg); color: var(--warn-fg); border: 1px solid var(--warn-bd);
+  border-radius: 10px; padding: 13px 16px; font-size: 13.5px; margin: 20px 0;
+}
+.note strong { font-weight: 650; }
+.note ul { margin: 8px 0 0; padding-left: 20px; }
+.note li { margin: 4px 0; }
+
+ul.plain { padding-left: 20px; font-size: 14.5px; }
+ul.plain li { margin: 6px 0; }
+
+.shot {
+  display: block; width: 100%; height: auto; margin-top: 12px;
+  border: 1px solid var(--border); border-radius: 12px;
+}
+footer {
+  margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border);
+  font-size: 12.5px; color: var(--text-faint);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="mark" aria-hidden="true"></span>
+  <h1>Compatibility &amp; support matrix</h1>
+</header>
+<p class="sub">
+  Elastic APM agents · EDOT / OpenTelemetry · Synthetics — consolidated into one searchable
+  explorer, with three checkers that take your setup and report where the gaps are. Every
+  value is a verbatim transcription of an Elastic documentation page, and every row links
+  back to the exact page and anchor it came from.
+</p>
+
+<div class="stats">
+  <div class="stat"><b>47</b><span>matrices</span></div>
+  <div class="stat"><b>281</b><span>table rows</span></div>
+  <div class="stat"><b>26</b><span>doc pages</span></div>
+  <div class="stat"><b>40</b><span>cited rules</span></div>
+  <div class="stat"><b>0</b><span>dependencies</span></div>
+</div>
+
+<h2>Architecture</h2>
+<a class="card" href="architecture.html">
+  <h3>Interactive architecture diagram →</h3>
+  <p>How the scraped data, the cited rules engine, the three checkers and the refresh
+     pipeline fit together. Generated with archify.</p>
+</a>
+<img class="shot" src="architecture.png"
+     alt="Architecture diagram of the compatibility matrix explorer, showing the data layer, rules engine, checkers and refresh pipeline.">
+
+<h2>Get the app</h2>
+<a class="card" href="https://github.com/e-parth-pathak/apm-edot-supportability/releases/latest">
+  <h3>Download standalone.html →</h3>
+  <p>The whole explorer in one file — data, CSS and JS inlined. Open it locally, no install
+     required. Attached to the latest release.</p>
+</a>
+<a class="card" href="https://github.com/e-parth-pathak/apm-edot-supportability">
+  <h3>Source on GitHub →</h3>
+  <p><code>git clone</code> then <code>npm run dev</code>. Zero runtime dependencies —
+     plain Node ≥ 18.</p>
+</a>
+
+<h2>What it does</h2>
+<ul class="plain">
+  <li><strong>Browse</strong> — 47 matrices across 26 Elastic doc pages, searchable and
+      filterable by support status, with a per-row citation.</li>
+  <li><strong>Is my stack supported?</strong> — enter your Stack version, Elastic Agent
+      version, ingestion path, SDKs and agents; get a verdict per component.</li>
+  <li><strong>Classic APM → EDOT migration gaps</strong> — what has no EDOT equivalent yet,
+      what needs rework, what migrates cleanly.</li>
+  <li><strong>Feature availability by SDK</strong> — which EDOT SDK covers the features you
+      need, and at which version.</li>
+</ul>
+
+<h2>How it avoids guessing</h2>
+<p>
+  The engine holds no compatibility knowledge of its own. All 40 rules carry the
+  documentation sentence that justifies them, and a build gate asserts every quote appears
+  <em>verbatim</em> in the scraped data — a rule cannot cite text that isn't on a page we
+  actually read. Seven combinations Elastic does not document are declared as such and
+  reported as <em>Not documented</em> rather than given a verdict.
+</p>
+
+<div class="note">
+  <strong>Known limitations</strong>
+  <ul>
+    <li>8 of 18 datasets cannot yet be refreshed automatically — the per-language EDOT SDK
+        pages live outside <code>elastic/opentelemetry</code>. Their data is valid but drift
+        in them is not detected.</li>
+    <li>A full refresh cycle has not completed end to end with live data.</li>
+    <li>Elastic's documentation is the authoritative source. If a page has changed since the
+        scrape date shown in the app, the doc wins.</li>
+  </ul>
+</div>
+
+<footer>
+  Not an official Elastic project. Data transcribed from
+  <a href="https://www.elastic.co/docs">elastic.co/docs</a>; see the app for per-row
+  source links.
+</footer>
+
+</div>
+</body>
+</html>

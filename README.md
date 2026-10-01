@@ -14,11 +14,35 @@ something in prose rather than a table, the prose is reproduced as-is.
 
 ## Architecture
 
-[`docs/architecture.html`](docs/architecture.html) is the interactive diagram. Open that file in a browser. The picture below is the same diagram.
+Hosted: **<https://e-parth-pathak.github.io/apm-edot-supportability/>**
+
+[`docs/architecture.html`](docs/architecture.html) is the interactive diagram. Open that file in a browser, or view it on the hosted page above. The picture below is the same diagram.
 
 ![APM and EDOT compatibility explorer](docs/architecture.png)
 
 A reader opens the static server, which serves the browse and check UI. Checker inputs, theme, and mode stay in `localStorage`. `engine.js` runs in the page: each finding copies `quote` and `sourceUrl` from `rules.json`, and a combination the docs do not state stays `not-documented`. `build.js` writes `public/data.json` and inlines that bundle into `standalone.html` and `artifact.html`. Refresh parses GitHub markdown, cross-checks those cells against the live Elastic HTML, and stages the tables. It does not write `data/`. `diff-refresh.js` appends added rows only when run with `--apply-additions`. Cell changes and deletions stay for review. In `dev.js`, `verify.js`, `check-quotes.js`, and `check-css.js` skip the build when they fail.
+
+### GitHub Pages
+
+The site at <https://e-parth-pathak.github.io/apm-edot-supportability/> is served from the
+`/docs` folder on `main`. To enable it: **Settings → Pages → Source: Deploy from a branch →
+Branch `main`, folder `/docs`.**
+
+`docs/` holds three hand-maintained files and nothing generated:
+
+| File | What |
+| --- | --- |
+| `index.html` | Landing page. Self-contained — no build step, no external requests. |
+| `architecture.html` | The interactive archify diagram. |
+| `architecture.png` | Still of the same diagram, used in this README and on the page. |
+
+**The site deliberately does not host the app itself.** Serving it would mean committing
+the generated `public/standalone.html`, which is gitignored precisely so a stale build
+can't be mistaken for current data. The landing page links to the release asset instead,
+so the only copy people can download is one that was built from a verified tree.
+
+If you later decide to host the app too, the honest way is a CI job that rebuilds it on
+every push to `main` — not a manual copy, which will silently go stale.
 
 ## Requirements
 
@@ -401,6 +425,7 @@ is the honest answer:
 apm-edot-compatibility-matrix/
 ├── package.json
 ├── docs/
+│   ├── index.html         GitHub Pages landing page (hand-edited)
 │   ├── architecture.html  interactive architecture diagram
 │   └── architecture.png   still of that diagram, shown above
 ├── dev.js                 verify + grounding + CSS guard + build + serve + watch
