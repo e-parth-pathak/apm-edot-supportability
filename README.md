@@ -14,9 +14,12 @@ something in prose rather than a table, the prose is reproduced as-is.
 
 ## Architecture
 
-Hosted: **<https://e-parth-pathak.github.io/apm-edot-supportability/>**
+**[View the interactive architecture diagram →](https://e-parth-pathak.github.io/apm-edot-supportability/architecture.html)**
 
-[`docs/architecture.html`](docs/architecture.html) is the interactive diagram. Open that file in a browser, or view it on the hosted page above. The picture below is the same diagram.
+Hosted on GitHub Pages, alongside the
+[project landing page](https://e-parth-pathak.github.io/apm-edot-supportability/). The same
+diagram is in the repo at [`docs/architecture.html`](docs/architecture.html) if you'd rather
+open it locally. The picture below is a still of it.
 
 ![APM and EDOT compatibility explorer](docs/architecture.png)
 
