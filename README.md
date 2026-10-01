@@ -120,7 +120,7 @@ Six independent gates, each of which fails the build:
 | `node check-freshness.js` | Data age against the thresholds in `sources.json`. Warns past 45 days, fails past 120. |
 | `node test-engine.js` | 94 assertions: version banding, per-checker verdicts against known doc facts, and the invariant that *every* finding carries a `sourceUrl` and evidence. |
 | `node test-ui.js` | 53 assertions driving the real page in jsdom: both modes, all three forms, and that every finding rendered to a user has a doc link. |
-| `node test-refresh.js` | 74 assertions on the refresh pipeline against offline fixtures: markdown parsing, cross-check, and every branch of the additions-auto / changes-review policy. |
+| `node test-refresh.js` | 106 assertions on the refresh pipeline against offline fixtures: markdown table/list/prose parsing, docs-builder normalisation, cross-check diagnosis, and every branch of the additions-auto / changes-review policy. |
 
 Current results:
 
@@ -131,7 +131,7 @@ check-css     toggled elements checked 5 | errors 0
 check-freshness  age within the 45-day window
 test-engine   94 passed, 0 failed
 test-ui       53 passed, 0 failed
-test-refresh  74 passed, 0 failed
+test-refresh  106 passed, 0 failed
 ```
 
 ### Why there's a separate CSS gate
@@ -171,7 +171,7 @@ than something you discover when a verdict turns out to be wrong.
 ```bash
 npm run refresh              # fetch + diff, report only (nothing written to data/)
 npm run refresh:apply        # fetch + diff, auto-apply row ADDITIONS only
-npm run refresh:paths        # list repo trees to fix a moved markdown path
+npm run refresh:paths        # list repo trees + probe per-SDK repos
 npm run freshness            # how old is the committed data?
 ```
 
@@ -240,25 +240,59 @@ itself changed. Then `npm run check`.
   07:00 UTC, uploads the diff, and opens/updates a single `data-drift` issue. Report-only;
   it never pushes to `main`.
 
-### Verification caveat — read this before the first real run
+### What the first live run found (2026-09-21)
 
-**The network paths in `refresh.js` have never been executed.** The environment this was
-built in could not reach `elastic.co` or `raw.githubusercontent.com`, so I could not run a
-live fetch end to end. What *is* tested, by `test-refresh.js` against recorded fixtures
-(74 assertions):
+`refresh.js` was written in an environment with no access to `elastic.co` or
+`raw.githubusercontent.com`, so its network paths were unverified on first commit. The
+first real run surfaced two defects and one wrong assumption. All three are fixed or
+recorded; the parsing and diff logic was already fixture-tested and behaved correctly.
 
-- markdown table parsing, including both anchor syntaxes, code fences, escaped pipes,
-  inline code, short rows and malformed separators
-- markdown→text and HTML→text normalisation
-- the cross-check, both when cells match and when they don't
-- every branch of the diff policy above, including `--apply-additions` actually writing
-- the rule-quote-at-risk prediction
+**1. The per-language SDK pages are not in `elastic/opentelemetry`.** This was an
+assumption baked into `sources.json`, and it was wrong. `--resolve-paths` reported that the
+repo contains **exactly one** EDOT SDK markdown file — `docs/reference/edot-sdks/index.md`.
+Each SDK is published from its own repo (`elastic-otel-java`, `elastic-otel-dotnet`, …) and
+docs-builder assembles them into one site.
 
-Untested in anger: the actual HTTP calls, and whether the 19 `inferred-from-sibling` /
-`unverified-guess` markdown paths resolve. `refresh.js` is built to fail loudly and write
-nothing when it can't fetch — verified: with no network it exits 2 and leaves `data/`
-byte-identical. **Treat the first live run as needing a human eye**, and start with
-`npm run refresh:paths` to confirm the paths before trusting a diff.
+Rather than guess 8 repo names into the manifest, those 16 pages now have `mdPath: null`
+with `verified: "NOT-IN-elastic/opentelemetry"` and the evidence recorded in
+`knownGaps`. `refresh.js` skips them with a clear message instead of manufacturing a 404
+every run. `--resolve-paths` now probes the candidate SDK repos and prints the doc trees
+they actually publish, so the manifest can be corrected from observed fact.
+
+**Consequence worth knowing:** those 8 datasets cannot currently be refreshed from
+markdown. Their committed data is still valid — it was transcribed from the rendered pages
+— but drift in them will not be detected until the SDK repos are wired up.
+
+**2. The cross-check was wrong, not the docs.** It reported 55 of 65 cells "missing" on
+`features.md`. The `--explain` output named the cause immediately:
+
+```
+reasons: {"absent-from-rendered-page":45,"partial-word-match":7,"prefix-found-suffix-differs":3}
+   md : "{{product.apm}}"
+   md : "[Compatible]"
+   md : "[Supported]"
+```
+
+Elastic's source is **docs-builder markdown, not plain markdown**. Two constructs defeated
+`plain()`: `{{product.apm}}` substitutions (source says the token, page says "APM") and
+reference-style links `[Compatible]` whose target is defined elsewhere in the file — only
+inline `[text](url)` was being unwrapped. Both are formatting, not content, so they are
+now normalised away. Cells that are *only* a substitution, or only a version/symbol token,
+are no longer counted as checked at all — we cannot know their rendered value, so claiming
+to have verified them would be false.
+
+**3. Lists and prose were invisible to refresh.** `synthetics` reported `tables=0` despite
+fetching fine, because its support matrix is bullets. `refresh.js` now extracts lists and
+prose per heading — flattening nested bullets to match how the original transcription
+stored them, so a refresh doesn't report every nested item as a change — and
+`diff-refresh.js` diffs list items under the same additions-auto / changes-review policy.
+An added-and-removed pair in one list is treated as a **rewording** and sent to review,
+not auto-applied as two edits.
+
+**What still hasn't been verified end to end:** a successful markdown fetch + diff + apply
+cycle producing a real change. The guards did hold under live conditions — the run was
+invoked with `--apply-additions` and `data/` came back byte-identical, because every
+dataset either failed to fetch or failed cross-check.
 
 ## How the checkers avoid guessing
 
@@ -378,7 +412,7 @@ apm-edot-compatibility-matrix/
 ├── check-freshness.js     data-age build gate
 ├── refresh.js             cross-checked re-pull from Elastic docs
 ├── diff-refresh.js        staged-vs-committed diff + apply policy
-├── test-refresh.js        74 tests for the refresh pipeline (offline fixtures)
+├── test-refresh.js        106 tests for the refresh pipeline (offline fixtures)
 ├── test-engine.js         94 unit tests for the evaluator
 ├── test-ui.js             53 tests driving the real page in jsdom
 ├── data/

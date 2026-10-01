@@ -46,6 +46,8 @@ const optOf = name => {
 
 const OFFLINE = has('--offline');
 const RESOLVE_PATHS = has('--resolve-paths');
+const EXPLAIN = has('--explain');
+const EXPLAIN_N = parseInt(optOf('explain-limit') || '6', 10);
 const ONLY = (optOf('only') || '').split(',').map(s => s.trim()).filter(Boolean);
 const TIMEOUT_MS = 25000;
 
@@ -157,12 +159,115 @@ function parseMarkdownTables(md) {
   return out;
 }
 
+/**
+ * Extract bullet lists and prose paragraphs, keyed by the heading above them.
+ * Returns { lists: [{heading, anchor, items}], prose: [{heading, anchor, text}] }.
+ *
+ * Several datasets — Synthetics most of all — carry their compatibility data in
+ * bullets rather than tables. Without this, refresh.js reports `tables=0` and
+ * silently cannot detect any change to them.
+ *
+ * NESTING: the original transcription FLATTENED nested bullets into one list
+ * (see data/core-synthetics.json "Private Locations", where the `elastic-agent`
+ * variants are siblings of their parent bullet). This parser flattens the same
+ * way, so a refresh does not report every nested item as a change. Marker style
+ * (-, *, +) is normalised away for the same reason.
+ */
+function parseMarkdownProse(md) {
+  const lines = md.split(/\r?\n/);
+  const lists = [];
+  const prose = [];
+  let heading = null, anchor = null, inCode = false;
+  let curList = null, para = [];
+
+  const flushPara = () => {
+    const text = para.join(' ').trim();
+    para = [];
+    if (text && heading) prose.push({ heading, anchor, text });
+  };
+  const flushList = () => {
+    if (curList && curList.items.length) lists.push(curList);
+    curList = null;
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    if (/^\s*```/.test(line)) { inCode = !inCode; flushPara(); flushList(); continue; }
+    if (inCode) continue;
+
+    const h = line.match(/^(#{1,6})\s+(.*?)\s*$/);
+    if (h) {
+      flushPara(); flushList();
+      let text = h[2];
+      anchor = null;
+      const curly = text.match(/\{#([^}\s]+)\}\s*$/);
+      if (curly) { anchor = curly[1]; text = text.slice(0, curly.index); }
+      const square = text.match(/\[([A-Za-z0-9._-]+)\]\s*$/);
+      if (!anchor && square) { anchor = square[1]; text = text.slice(0, square.index); }
+      heading = text.trim();
+      continue;
+    }
+
+    // Skip table rows — parseMarkdownTables owns those.
+    if (/^\s*\|/.test(line)) { flushPara(); flushList(); continue; }
+
+    const bullet = line.match(/^(\s*)([-*+]|\d+\.)\s+(.*)$/);
+    if (bullet) {
+      flushPara();
+      if (!curList) curList = { heading, anchor, items: [] };
+      curList.items.push(bullet[3].trim());   // flattened, marker dropped
+      continue;
+    }
+
+    if (!line.trim()) { flushPara(); flushList(); continue; }
+
+    // A continuation line indented under the previous bullet belongs to it.
+    if (curList && /^\s{2,}\S/.test(line) && curList.items.length) {
+      curList.items[curList.items.length - 1] += ' ' + line.trim();
+      continue;
+    }
+
+    flushList();
+    para.push(line.trim());
+  }
+  flushPara(); flushList();
+
+  return { lists, prose };
+}
+
 /* ------------------------------------------------------------ cross-check */
 
-/** Strip markdown to comparable plain text. */
+/**
+ * Strip markdown to text comparable against the RENDERED page.
+ *
+ * Elastic's docs-builder source is not plain markdown. Two constructs broke
+ * the first live cross-check (55 of 65 cells "missing" on features.md):
+ *
+ *   {{product.apm}}   — a substitution variable. The source says
+ *                       "{{product.apm}}", the page says "APM". Comparing the
+ *                       raw token can never match.
+ *   [Compatible]      — a REFERENCE-style link whose target is defined
+ *                       elsewhere in the file. Only inline [text](url) was
+ *                       being unwrapped, so the brackets survived into the
+ *                       comparison and never matched the rendered text.
+ *
+ * Both are formatting, not content — so they are normalised away rather than
+ * reported as drift. Anything left unresolved is still compared verbatim.
+ */
 function plain(s) {
   return String(s == null ? '' : s)
+    // inline links:    [text](url)  -> text
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    // reference links: [text][ref]  -> text
+    .replace(/\[([^\]]+)\]\[[^\]]*\]/g, '$1')
+    // shortcut refs:   [text]       -> text   (target defined elsewhere)
+    .replace(/\[([^\]\n]+)\]/g, '$1')
+    // docs-builder substitutions: {{product.apm}} -> dropped, the rendered
+    // value is unknown to us and must not be compared as a literal token.
+    .replace(/\{\{[^}]*\}\}/g, ' ')
+    // applies_to / directive blocks leak markers into cells
+    .replace(/:{3,}/g, ' ')
     .replace(/[`*_]/g, '')
     .replace(/&nbsp;/g, ' ')
     .replace(/\s+/g, ' ')
@@ -195,11 +300,35 @@ function crossCheck(tables, htmlText) {
     for (const row of t.rows) {
       for (const cell of row) {
         const p = plain(cell).replace(/’/g, "'");
-        // Skip trivia: empty, single symbols, pure punctuation.
+        // Skip trivia: empty, single symbols, pure punctuation. A cell that was
+        // nothing but a {{substitution}} normalises to empty and lands here —
+        // correctly, since we cannot know its rendered value to compare.
         if (p.length < 4) continue;
+        // Skip cells that are only a version/symbol token; these appear
+        // verbatim in dozens of places and match trivially either way.
+        if (/^[✅𝐓➖❌\s\d.x+v≥<>-]+$/.test(p)) continue;
         checked++;
         if (hay.indexOf(p) === -1) {
-          missing.push({ heading: t.heading, cell: p.slice(0, 140) });
+          const m = { heading: t.heading, cell: p.slice(0, 140) };
+          // Diagnose WHY it missed, so a miss is actionable rather than a count.
+          // The common causes are all benign formatting differences, not drift.
+          const head = p.slice(0, 24);
+          const idx = hay.indexOf(head);
+          if (idx !== -1) {
+            m.reason = 'prefix-found-suffix-differs';
+            m.htmlNearby = hay.slice(idx, idx + Math.max(60, p.length + 20));
+          } else {
+            const words = p.split(' ').filter(w => w.length > 3);
+            const anchorWord = words.find(w => hay.indexOf(w) !== -1);
+            if (anchorWord) {
+              const wi = hay.indexOf(anchorWord);
+              m.reason = 'partial-word-match';
+              m.htmlNearby = hay.slice(Math.max(0, wi - 30), wi + 90);
+            } else {
+              m.reason = 'absent-from-rendered-page';
+            }
+          }
+          missing.push(m);
         }
       }
     }
@@ -234,20 +363,99 @@ async function resolvePaths() {
 
     const md = tree.filter(n => n.path.endsWith('.md')).map(n => n.path);
     console.log('  ' + md.length + ' markdown files in tree');
+
     for (const w of wanted) {
-      const exact = md.includes(w);
-      if (exact) { console.log('  ✓ ' + w); continue; }
-      const base = path.basename(w);
-      const near = md.filter(m => m.endsWith('/' + base)).slice(0, 5);
+      if (md.includes(w)) { console.log('  ✓ ' + w); continue; }
       console.log('  ✗ ' + w);
+      const base = path.basename(w);
+      const near = md.filter(m => m.endsWith('/' + base)).slice(0, 6);
       near.forEach(n => console.log('      candidate: ' + n));
       if (!near.length) {
-        const dir = path.dirname(w);
-        const sameDir = md.filter(m => m.startsWith(dir.split('/').slice(0, -1).join('/'))).slice(0, 8);
-        sameDir.forEach(n => console.log('      nearby: ' + n));
+        // Fall back to the parent directory listing so a renamed folder is obvious.
+        const parent = path.dirname(path.dirname(w));
+        const sameArea = md.filter(m => m.startsWith(parent + '/')).slice(0, 12);
+        if (sameArea.length) sameArea.forEach(n => console.log('      nearby: ' + n));
+        else console.log('      (nothing under ' + parent + '/ — the whole area may have moved)');
       }
     }
+
+    // Print the SDK doc tree in full: that is where every 404 landed, and the
+    // directory naming is the thing that cannot be guessed from the URL slug.
+    const sdkDocs = md.filter(m => /edot-sdks?\//.test(m));
+    if (sdkDocs.length) {
+      console.log('\n  --- all EDOT SDK markdown in this repo (' + sdkDocs.length + ') ---');
+      sdkDocs.forEach(n => console.log('    ' + n));
+    }
   }
+
+  // If the per-language SDK pages are not in elastic/opentelemetry, they live
+  // in the individual SDK repos (docs-builder assembles them into one site).
+  // Probe candidate repos rather than guessing paths into sources.json.
+  await probeSdkRepos();
+}
+
+/**
+ * The 8 per-language EDOT SDK pages are not in elastic/opentelemetry — the
+ * first live run proved the repo holds exactly one edot-sdks markdown file.
+ * Each SDK is its own repo. This probes the likely repo names and prints the
+ * markdown files each one actually publishes, so sources.json can be corrected
+ * from observed fact rather than convention.
+ */
+async function probeSdkRepos() {
+  const candidates = {
+    dotnet:  ['elastic-otel-dotnet'],
+    java:    ['elastic-otel-java'],
+    node:    ['elastic-otel-node'],
+    php:     ['elastic-otel-php'],
+    python:  ['elastic-otel-python'],
+    android: ['elastic-otel-android'],
+    ios:     ['elastic-otel-ios', 'apm-agent-ios'],
+    browser: ['elastic-otel-rum-js', 'elastic-otel-browser'],
+  };
+
+  console.log('\n\n=== probing per-SDK repos for their docs ===');
+  console.log('(the 8 language pages are not in elastic/opentelemetry)\n');
+
+  const resolved = {};
+
+  for (const [sdk, repos] of Object.entries(candidates)) {
+    let done = false;
+    for (const repo of repos) {
+      if (done) break;
+      const url = 'https://api.github.com/repos/elastic/' + repo + '/git/trees/main?recursive=1';
+      const res = await get(url, 'application/vnd.github+json');
+      if (!res.ok) {
+        console.log('  ' + sdk.padEnd(8) + ' elastic/' + repo.padEnd(26) + ' -> ' +
+          (res.status === 404 ? 'no such repo' : (res.error || res.status)));
+        continue;
+      }
+      let tree;
+      try { tree = JSON.parse(res.body).tree || []; } catch (e) { continue; }
+      const docs = tree.map(n => n.path)
+        .filter(p => p.endsWith('.md') && /docs?\//.test(p) && !/node_modules/.test(p));
+      console.log('  ' + sdk.padEnd(8) + ' elastic/' + repo.padEnd(26) + ' -> ' +
+        docs.length + ' markdown file(s) under docs/');
+      docs.slice(0, 20).forEach(p => console.log('           ' + p));
+      if (docs.length > 20) console.log('           … ' + (docs.length - 20) + ' more');
+      if (docs.length) { resolved[sdk] = { repo: 'elastic/' + repo, docs: docs.slice(0, 20) }; done = true; }
+    }
+  }
+
+  if (Object.keys(resolved).length) {
+    console.log('\n--- suggested sources.json repo entries (VERIFY before pasting) ---');
+    for (const [sdk, r] of Object.entries(resolved)) {
+      const idx = r.docs.find(p => /index\.md$/.test(p)) || r.docs[0];
+      const sup = r.docs.find(p => /supported-technologies\.md$/.test(p)) ||
+                  r.docs.find(p => /automatic-instrumentation\.md$/.test(p));
+      console.log('  ' + sdk + ':');
+      console.log('    repo   : ' + r.repo);
+      console.log('    index  : ' + idx);
+      if (sup) console.log('    support: ' + sup);
+    }
+  }
+
+  console.log('\nPaste the corrected repo + mdPath into data/sources.json,');
+  console.log('then set each entry\'s "verified" to "resolved-from-tree".');
 }
 
 /* --------------------------------------------------------------- refresh */
@@ -257,17 +465,31 @@ async function fetchPage(page, repo) {
   const result = {
     liveUrl: page.liveUrl, mdPath: page.mdPath, rawUrl,
     md: null, mdStatus: null, html: null, htmlStatus: null,
-    tables: [], crossCheck: null, errors: [],
+    tables: [], lists: [], prose: [], crossCheck: null, errors: [],
   };
 
-  const mdRes = await get(rawUrl, 'text/plain');
-  result.mdStatus = mdRes.status || mdRes.error;
-  if (mdRes.ok) {
-    result.md = mdRes.body;
-    result.tables = parseMarkdownTables(mdRes.body);
+  // mdPath: null means "we know there is no markdown source configured for
+  // this page" (see knownGaps in sources.json). Skipping is honest; retrying a
+  // path we have proven does not exist would just manufacture a 404 每 run.
+  if (!page.mdPath) {
+    result.mdStatus = 'skipped';
+    result.noMarkdownSource = true;
+    result.errors.push('no markdown source configured (' +
+      (page.verified || 'unresolved') + ') — cannot detect drift for this page. ' +
+      'Run: node refresh.js --resolve-paths');
   } else {
-    result.errors.push('markdown fetch failed (' + (mdRes.error || mdRes.status) +
-      ') — check mdPath in data/sources.json, then run: node refresh.js --resolve-paths');
+    const mdRes = await get(rawUrl, 'text/plain');
+    result.mdStatus = mdRes.status || mdRes.error;
+    if (mdRes.ok) {
+      result.md = mdRes.body;
+      result.tables = parseMarkdownTables(mdRes.body);
+      const p = parseMarkdownProse(mdRes.body);
+      result.lists = p.lists;
+      result.prose = p.prose;
+    } else {
+      result.errors.push('markdown fetch failed (' + (mdRes.error || mdRes.status) +
+        ') — check mdPath in data/sources.json, then run: node refresh.js --resolve-paths');
+    }
   }
 
   const htmlRes = await get(page.liveUrl, 'text/html');
@@ -282,8 +504,13 @@ async function fetchPage(page, repo) {
     result.errors.push('live page fetch failed (' + (htmlRes.error || htmlRes.status) + ')');
   }
 
-  if (result.tables.length && result.html) {
-    result.crossCheck = crossCheck(result.tables, result.html);
+  // Cross-check list items alongside table cells: a list item is just as much
+  // a compatibility claim as a cell, and Synthetics has almost nothing else.
+  const listAsTables = result.lists.map(l => ({
+    heading: l.heading, columns: ['item'], rows: l.items.map(i => [i]),
+  }));
+  if ((result.tables.length || listAsTables.length) && result.html) {
+    result.crossCheck = crossCheck(result.tables.concat(listAsTables), result.html);
     if (result.crossCheck.missing.length) {
       result.errors.push(result.crossCheck.missing.length +
         ' cell(s) parsed from markdown were NOT found in the rendered page — ' +
@@ -333,7 +560,7 @@ async function main() {
 
   for (const d of targets) {
     console.log('── ' + d.datasetId + '  (' + d.file + ')');
-    const entry = { datasetId: d.datasetId, file: d.file, pages: [], tables: 0, errors: [] };
+    const entry = { datasetId: d.datasetId, file: d.file, pages: [], tables: 0, lists: 0, errors: [] };
 
     for (const page of d.pages) {
       const repo = manifest.repos[page.repo];
@@ -342,20 +569,38 @@ async function main() {
         liveUrl: r.liveUrl, mdPath: r.mdPath,
         mdStatus: r.mdStatus, htmlStatus: r.htmlStatus,
         tables: r.tables.length,
+        lists: r.lists.length,
         crossChecked: r.crossCheck ? r.crossCheck.checked : 0,
         crossCheckMissing: r.crossCheck ? r.crossCheck.missing : [],
         errors: r.errors,
       });
       entry.tables += r.tables.length;
+      entry.lists += r.lists.length;
       entry.errors.push(...r.errors);
 
       const flag = r.errors.length ? '!' : '✓';
       console.log('   ' + flag + ' ' + page.mdPath +
         '  md=' + r.mdStatus + ' html=' + r.htmlStatus +
-        ' tables=' + r.tables.length +
+        ' tables=' + r.tables.length + ' lists=' + r.lists.length +
         (r.crossCheck ? ' xcheck=' + r.crossCheck.checked +
           (r.crossCheck.missing.length ? ' MISSING=' + r.crossCheck.missing.length : '') : ''));
       r.errors.forEach(e => console.log('       ' + e));
+
+      if (EXPLAIN && r.crossCheck && r.crossCheck.missing.length) {
+        const byReason = {};
+        r.crossCheck.missing.forEach(m => {
+          byReason[m.reason] = (byReason[m.reason] || 0) + 1;
+        });
+        console.log('       reasons: ' + JSON.stringify(byReason));
+        r.crossCheck.missing.slice(0, EXPLAIN_N).forEach(m => {
+          console.log('       ── ' + m.reason);
+          console.log('          md   : ' + JSON.stringify(m.cell));
+          if (m.htmlNearby) console.log('          html : ' + JSON.stringify(m.htmlNearby));
+        });
+        if (r.crossCheck.missing.length > EXPLAIN_N) {
+          console.log('       … ' + (r.crossCheck.missing.length - EXPLAIN_N) + ' more');
+        }
+      }
 
       // Stage the parsed tables for the differ.
       const stagePath = path.join(STAGING, d.datasetId + '__' +
@@ -363,7 +608,7 @@ async function main() {
       fs.writeFileSync(stagePath, JSON.stringify({
         datasetId: d.datasetId, liveUrl: r.liveUrl, mdPath: r.mdPath,
         fetchedAt: new Date().toISOString(),
-        tables: r.tables, errors: r.errors,
+        tables: r.tables, lists: r.lists, prose: r.prose, errors: r.errors,
       }, null, 2));
     }
 
@@ -377,6 +622,7 @@ async function main() {
   console.log('\n--- summary ---');
   console.log('datasets fetched : ' + report.datasets.length);
   console.log('tables parsed    : ' + report.datasets.reduce((a, d) => a + d.tables, 0));
+  console.log('lists parsed     : ' + report.datasets.reduce((a, d) => a + (d.lists || 0), 0));
   console.log('with problems    : ' + withErrors.length);
   console.log('staging dir      : .refresh-staging/');
   console.log('\nNothing in data/ was modified. Next: node diff-refresh.js');

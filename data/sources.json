@@ -136,14 +136,16 @@
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/dotnet",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/dotnet/index.md",
-          "verified": "inferred-from-sibling"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         },
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/dotnet/supported-technologies",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/dotnet/supported-technologies.md",
-          "verified": "inferred-from-sibling"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         }
       ]
     },
@@ -154,14 +156,16 @@
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/java",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/java/index.md",
-          "verified": "inferred-from-sibling"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         },
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/java/supported-technologies",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/java/supported-technologies.md",
-          "verified": "inferred-from-sibling"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         }
       ]
     },
@@ -172,14 +176,16 @@
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/nodejs/index.md",
-          "verified": "unverified-guess"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         },
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/node/supported-technologies",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/nodejs/supported-technologies.md",
-          "verified": "unverified-guess"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         }
       ]
     },
@@ -190,14 +196,16 @@
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/php/index.md",
-          "verified": "inferred-from-sibling"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         },
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/php/supported-technologies",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/php/supported-technologies.md",
-          "verified": "inferred-from-sibling"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         }
       ]
     },
@@ -208,14 +216,16 @@
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/python",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/python/index.md",
-          "verified": "inferred-from-sibling"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         },
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/python/supported-technologies",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/python/supported-technologies.md",
-          "verified": "inferred-from-sibling"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         }
       ]
     },
@@ -226,15 +236,17 @@
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/android/index.md",
-          "verified": "inferred-from-sibling"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         },
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/android/automatic-instrumentation",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/android/automatic-instrumentation.md",
-          "verified": "inferred-from-sibling",
-          "knownIssue": "The rendered page .../android/supported-technologies returned an empty body during the 2026-09-09 scrape. refresh.js should re-check whether it now has content."
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "knownIssue": "The rendered page .../android/supported-technologies returned an empty body during the 2026-09-09 scrape. refresh.js should re-check whether it now has content.",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         }
       ]
     },
@@ -245,14 +257,16 @@
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/ios/index.md",
-          "verified": "inferred-from-sibling"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         },
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/ios/automatic-instrumentation",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/ios/automatic-instrumentation.md",
-          "verified": "inferred-from-sibling"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         }
       ]
     },
@@ -263,14 +277,16 @@
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/browser",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/browser/index.md",
-          "verified": "inferred-from-sibling"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         },
         {
           "liveUrl": "https://www.elastic.co/docs/reference/opentelemetry/edot-sdks/browser/supported-technologies",
           "repo": "opentelemetry",
-          "mdPath": "docs/reference/edot-sdks/browser/supported-technologies.md",
-          "verified": "inferred-from-sibling"
+          "mdPath": null,
+          "verified": "NOT-IN-elastic/opentelemetry",
+          "resolveNote": "Confirmed by refresh.js --resolve-paths on 2026-09-21: elastic/opentelemetry contains exactly one edot-sdks markdown file (docs/reference/edot-sdks/index.md). The per-language pages live in the individual SDK repos. Run \"node refresh.js --resolve-paths\" to probe them, then set repo/mdPath from the observed tree."
         }
       ]
     },
@@ -290,6 +306,17 @@
   "verifiedLegend": {
     "scrape-2026-09-09": "mdPath was read directly off the page's 'Edit this page' link during the original scrape. High confidence.",
     "inferred-from-sibling": "mdPath follows the same directory convention as a sibling page whose path WAS observed. Likely correct; refresh.js reports a 404 clearly if not.",
-    "unverified-guess": "The URL slug and the repo directory name may differ (e.g. /edot-sdks/node vs docs/reference/edot-sdks/nodejs/). refresh.js resolves these by listing the repo tree, and reports what it found."
-  }
+    "unverified-guess": "The URL slug and the repo directory name may differ (e.g. /edot-sdks/node vs docs/reference/edot-sdks/nodejs/). refresh.js resolves these by listing the repo tree, and reports what it found.",
+    "NOT-IN-elastic/opentelemetry": "Observed fact, not a guess: this page has no markdown in elastic/opentelemetry. mdPath is null so refresh.js skips it rather than reporting a misleading 404. The page is still cross-checkable from its rendered HTML once a repo is identified.",
+    "resolved-from-tree": "mdPath was taken from an actual repo tree listing via --resolve-paths. Highest confidence."
+  },
+  "knownGaps": [
+    {
+      "issue": "The 8 per-language EDOT SDK pages have no markdown source configured.",
+      "discovered": "2026-09-21, first live refresh run",
+      "evidence": "refresh.js --resolve-paths reported exactly 1 edot-sdks markdown file in elastic/opentelemetry.",
+      "impact": "Those 8 datasets (16 pages) cannot be refreshed from markdown. Their committed data remains valid — it was transcribed from the rendered pages — but drift in them will not be detected until the SDK repos are wired up.",
+      "nextStep": "node refresh.js --resolve-paths  (now probes elastic/elastic-otel-* repos and prints their doc trees), then set repo + mdPath per page."
+    }
+  ]
 }

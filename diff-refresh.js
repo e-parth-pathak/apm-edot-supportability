@@ -124,7 +124,52 @@ for (const d of manifest.datasets) {
   }
 
   const stagedTables = staged.flatMap(s => (s.tables || []).map(t => ({ ...t, mdPath: s.mdPath })));
+  const stagedLists = staged.flatMap(s => (s.lists || []).map(l => ({ ...l, mdPath: s.mdPath })));
   const seenSections = new Set();
+
+  /* ---- list sections -------------------------------------------------
+     Same policy as tables: new items are additive and safe; changed or
+     removed items can flip a documented claim and always need review.
+     Synthetics is almost entirely lists, so without this its data cannot
+     be refreshed at all. ------------------------------------------------ */
+  for (const list of stagedLists) {
+    if (!list.items || !list.items.length) continue;
+
+    const sec = (ds.sections || []).find(s =>
+      s.type === 'list' && norm(s.heading).toLowerCase() === norm(list.heading || '').toLowerCase());
+    if (!sec) continue;   // a list with no matching section is not evidence of drift
+    seenSections.add(sec.heading);
+
+    const nowItems = (sec.items || []).map(norm);
+    const newItems = list.items.map(norm);
+    const nowSet = new Set(nowItems.map(i => i.toLowerCase()));
+    const newSet = new Set(newItems.map(i => i.toLowerCase()));
+
+    const addedItems = newItems.filter(i => !nowSet.has(i.toLowerCase()));
+    const removedItems = nowItems.filter(i => !newSet.has(i.toLowerCase()));
+
+    if (addedItems.length && !removedItems.length) {
+      findings.push({
+        kind: 'list-items-added', datasetId: d.datasetId, severity: 'auto',
+        heading: sec.heading, rows: addedItems.map(i => [i]),
+      });
+      additionsToApply.push({
+        file: d.file, sectionHeading: sec.heading, listItems: addedItems,
+      });
+    } else if (addedItems.length || removedItems.length) {
+      // Both together usually means an item was REWORDED, not added+removed.
+      // That is a content change, so it goes to review rather than auto-apply.
+      findings.push({
+        kind: 'list-items-changed', datasetId: d.datasetId, severity: 'review',
+        heading: sec.heading,
+        detail: (addedItems.length ? addedItems.length + ' new' : '') +
+          (addedItems.length && removedItems.length ? ' and ' : '') +
+          (removedItems.length ? removedItems.length + ' missing' : '') +
+          ' item(s). If an item was reworded this is one edit, not two — check before applying.',
+        added: addedItems, removed: removedItems,
+      });
+    }
+  }
 
   for (const table of stagedTables) {
     if (!table.rows || !table.rows.length) continue;
@@ -268,8 +313,14 @@ if (APPLY_ADDITIONS && additionsToApply.length) {
     for (const a of list) {
       const sec = ds.sections.find(s => s.heading === a.sectionHeading);
       if (!sec) continue;
-      sec.rows.push(...a.rows);
-      applied += a.rows.length;
+      if (a.listItems) {
+        sec.items = sec.items || [];
+        sec.items.push(...a.listItems);
+        applied += a.listItems.length;
+      } else if (a.rows) {
+        sec.rows.push(...a.rows);
+        applied += a.rows.length;
+      }
     }
     fs.writeFileSync(p, JSON.stringify(ds, null, 2) + '\n');
   }
@@ -300,6 +351,8 @@ if (AS_JSON) {
     if (f.cells) f.cells.forEach(c =>
       console.log('         row "' + f.row + '" · ' + c.column +
         '\n           - ' + JSON.stringify(c.before) + '\n           + ' + JSON.stringify(c.after)));
+    if (f.added) f.added.slice(0, 5).forEach(r => console.log('         + ' + JSON.stringify(r)));
+    if (f.removed) f.removed.slice(0, 5).forEach(r => console.log('         - ' + JSON.stringify(r)));
     if (f.rows) f.rows.slice(0, 6).forEach(r => console.log('         · ' + JSON.stringify(r)));
     if (f.rows && f.rows.length > 6) console.log('         … and ' + (f.rows.length - 6) + ' more');
     console.log();

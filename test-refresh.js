@@ -41,15 +41,17 @@ const group = n => console.log('\n' + n);
 const refreshSrc = fs.readFileSync(path.join(HERE, 'refresh.js'), 'utf8');
 const parseFnSrc = refreshSrc.match(
   /function parseMarkdownTables\(md\) \{[\s\S]*?\n\}/)[0];
+const proseFnSrc = refreshSrc.match(
+  /function parseMarkdownProse\(md\) \{[\s\S]*?\n\}/)[0];
 const plainFnSrc = refreshSrc.match(/function plain\(s\) \{[\s\S]*?\n\}/)[0];
 const htmlFnSrc = refreshSrc.match(/function htmlToText\(html\) \{[\s\S]*?\n\}/)[0];
 const xcheckFnSrc = refreshSrc.match(/function crossCheck\(tables, htmlText\) \{[\s\S]*?\n\}/)[0];
 // eslint-disable-next-line no-new-func
 const sandbox = new Function(
-  parseFnSrc + '\n' + plainFnSrc + '\n' + htmlFnSrc + '\n' + xcheckFnSrc +
-  '\nreturn { parseMarkdownTables, plain, htmlToText, crossCheck };')();
+  parseFnSrc + '\n' + proseFnSrc + '\n' + plainFnSrc + '\n' + htmlFnSrc + '\n' + xcheckFnSrc +
+  '\nreturn { parseMarkdownTables, parseMarkdownProse, plain, htmlToText, crossCheck };')();
 
-const { parseMarkdownTables, plain, htmlToText, crossCheck } = sandbox;
+const { parseMarkdownTables, parseMarkdownProse, plain, htmlToText, crossCheck } = sandbox;
 
 group('markdown table parser');
 {
@@ -121,6 +123,73 @@ group('parser robustness');
   ok('pads short rows to column count', pad[0].rows[0].length === 3);
 }
 
+group('markdown list + prose parser');
+{
+  // Shaped after data/core-synthetics.json, which is almost entirely bullets.
+  const md = [
+    '# Synthetics support matrix',
+    '',
+    'There are various components that make up the Synthetics solution.',
+    '',
+    '## Private Locations [_private_locations_2]',
+    '',
+    '- **GA support**: 8.8.0 and higher',
+    '- For running lightweight and browser monitors from your own infrastructure',
+    '- Shipped as multiple `elastic-agent` variants:',
+    '    - `elastic-agent-complete`, provided as a Docker image',
+    '    - `elastic-agent` which only supports TCP, HTTP, and ICMP monitors.',
+    '',
+    '## Output to Elasticsearch',
+    '',
+    'Synthetics must have a direct connection to Elasticsearch.',
+  ].join('\n');
+
+  const { lists, prose } = parseMarkdownProse(md);
+
+  const pl = lists.find(l => l.heading === 'Private Locations');
+  ok('finds the list under its heading', !!pl);
+  ok('strips the [anchor] from the heading', pl && pl.heading === 'Private Locations');
+  ok('captures the anchor', pl && pl.anchor === '_private_locations_2', pl && pl.anchor);
+  ok('FLATTENS nested bullets to match the original transcription',
+    pl && pl.items.length === 5, pl && 'got ' + pl.items.length);
+  ok('drops the bullet marker', pl && pl.items[0] === '**GA support**: 8.8.0 and higher',
+    pl && JSON.stringify(pl.items[0]));
+  ok('nested item is a sibling, not nested', pl &&
+    pl.items[3] === '`elastic-agent-complete`, provided as a Docker image',
+    pl && JSON.stringify(pl.items[3]));
+
+  const op = prose.find(p => p.heading === 'Output to Elasticsearch');
+  ok('captures prose under its heading', !!op);
+  ok('prose text is the paragraph',
+    op && op.text === 'Synthetics must have a direct connection to Elasticsearch.',
+    op && JSON.stringify(op.text));
+}
+
+group('list parser robustness');
+{
+  ok('ignores bullets inside code fences',
+    parseMarkdownProse('# H\n\n```\n- not a bullet\n```').lists.length === 0);
+  ok('ignores table rows (parseMarkdownTables owns those)',
+    parseMarkdownProse('# H\n\n| a | b |\n| - | - |\n| 1 | 2 |').lists.length === 0);
+
+  const mixed = parseMarkdownProse('# H\n\n- one\n* two\n+ three');
+  ok('treats -, * and + as the same marker',
+    mixed.lists.length === 1 && mixed.lists[0].items.length === 3,
+    JSON.stringify(mixed.lists));
+
+  const num = parseMarkdownProse('# H\n\n1. first\n2. second');
+  ok('handles numbered lists', num.lists[0].items.length === 2);
+
+  const cont = parseMarkdownProse('# H\n\n- a bullet that\n  wraps onto the next line\n- second');
+  ok('joins a wrapped continuation line onto its bullet',
+    cont.lists[0].items[0] === 'a bullet that wraps onto the next line',
+    JSON.stringify(cont.lists[0].items));
+  ok('the following bullet is still separate', cont.lists[0].items.length === 2);
+
+  ok('a list before any heading is not attributed to one',
+    parseMarkdownProse('- orphan bullet').lists.every(l => l.heading === null));
+}
+
 group('markdown -> plain text');
 {
   ok('strips links', plain('[Compatible](https://x.dev/y)') === 'Compatible');
@@ -128,6 +197,51 @@ group('markdown -> plain text');
   ok('strips bold', plain('**APM**') === 'APM');
   ok('keeps status symbols', plain('✅ 1.0+') === '✅ 1.0+');
   ok('collapses whitespace', plain('a   b\n c') === 'a b c');
+}
+
+group('plain(): docs-builder constructs (first-live-run regression)');
+{
+  // The first live run reported 55 of 65 cells "missing" on features.md. The
+  // --explain output showed the real cause: Elastic's source is docs-builder
+  // markdown, not plain markdown. These are FORMATTING, not drift.
+  ok('reference-style link [text] unwrapped',
+    plain('[Compatible]') === 'Compatible', JSON.stringify(plain('[Compatible]')));
+  ok('full reference link [text][ref] unwrapped',
+    plain('[Compatible][nomenclature]') === 'Compatible');
+  ok('inline link still unwrapped',
+    plain('[Service Maps](https://www.elastic.co/x)') === 'Service Maps');
+  ok('{{substitution}} dropped — its rendered value is unknown to us',
+    plain('{{product.apm}}') === '', JSON.stringify(plain('{{product.apm}}')));
+  ok('mixed constructs resolve together',
+    plain('**{{product.apm}}** is [Supported]') === 'is Supported',
+    JSON.stringify(plain('**{{product.apm}}** is [Supported]')));
+  ok('parenthesised text is NOT mistaken for a link',
+    plain('Head-based sampling (HBS)') === 'Head-based sampling (HBS)');
+  ok('directive colons stripped', plain(':::: note') === 'note');
+}
+
+group('cross-check: substitution-only and token-only cells are not counted');
+{
+  const cnt = (cells, html) =>
+    crossCheck([{ heading: 'T', columns: ['a'], rows: cells.map(c => [c]) }], htmlToText(html));
+
+  const sub = cnt(['{{product.apm}}'], '<p>APM</p>');
+  ok('a substitution-only cell is skipped, not reported missing',
+    sub.checked === 0 && sub.missing.length === 0,
+    'checked=' + sub.checked + ' missing=' + sub.missing.length);
+
+  const tok = cnt(['✅ 1.0+', '≥ 6.5', '1.x'], '<p>unrelated</p>');
+  ok('version/symbol-only cells are skipped',
+    tok.checked === 0 && tok.missing.length === 0,
+    'checked=' + tok.checked + ' missing=' + tok.missing.length);
+
+  const real = cnt(['Head-based sampling (HBS)'], '<p>unrelated</p>');
+  ok('real prose cells are still checked and still flagged',
+    real.checked === 1 && real.missing.length === 1);
+
+  const ref = cnt(['[Compatible]'], '<p>Compatible</p>');
+  ok('a reference-link cell now MATCHES the rendered page',
+    ref.missing.length === 0, JSON.stringify(ref.missing));
 }
 
 group('HTML cross-check');
@@ -148,6 +262,34 @@ group('HTML cross-check');
 
   ok('entity decoding', htmlToText('<p>a &amp; b &nbsp;c</p>') === 'a & b c');
   ok('script/style stripped', htmlToText('<script>x=1</script><p>hi</p>') === 'hi');
+}
+
+group('cross-check: --explain classifies WHY a cell missed');
+{
+  // A miss is only actionable if you know the cause. The three causes differ
+  // completely in what you should do about them.
+  const mk = (cell, html) =>
+    crossCheck([{ heading: 'T', columns: ['a'], rows: [[cell]] }], htmlToText(html))
+      .missing[0];
+
+  const suffix = mk('Supported with some caveats here',
+    '<p>Supported with some caveats THEN DIFFERENT</p>');
+  ok('prefix match, differing tail -> prefix-found-suffix-differs',
+    suffix && suffix.reason === 'prefix-found-suffix-differs', suffix && suffix.reason);
+  ok('...and it shows the rendered text for comparison',
+    suffix && typeof suffix.htmlNearby === 'string' && suffix.htmlNearby.length > 0);
+
+  const partial = mk('Kubernetes dashboard widget',
+    '<p>Something about Kubernetes elsewhere</p>');
+  ok('shared word only -> partial-word-match',
+    partial && partial.reason === 'partial-word-match', partial && partial.reason);
+  ok('...and it shows where that word appears',
+    partial && /Kubernetes/.test(partial.htmlNearby || ''));
+
+  const absent = mk('Zzzqqq Wwwxxx Yyyvvv', '<p>completely unrelated content</p>');
+  ok('nothing in common -> absent-from-rendered-page',
+    absent && absent.reason === 'absent-from-rendered-page', absent && absent.reason);
+  ok('...and it offers no misleading nearby text', absent && !absent.htmlNearby);
 }
 
 /* ===================================================================

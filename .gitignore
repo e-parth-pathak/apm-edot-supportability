@@ -15,3 +15,6 @@ npm-debug.log*
 .refresh-test-tmp/
 drift-report.txt
 drift-report.json
+
+# Output from the archify diagram tool (generated, timestamped run dirs)
+.archify/
